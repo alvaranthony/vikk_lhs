@@ -1,0 +1,3 @@
+[04-Jan-2018 19:52:10 UTC] PHP Fatal error:  Trait 'App\Http\Controllers\Auth\RegistersStudents' not found in /home/ubuntu/workspace/vikk_lhs/app/Http/Controllers/Auth/RegisterController.php on line 23
+[06-Jan-2018 14:39:46 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Auth\Student' not found in /home/ubuntu/workspace/vikk_lhs/app/Student.php on line 8
+[06-Jan-2018 14:42:55 UTC] PHP Fatal error:  Class 'Illuminate\Foundation\Auth\Student' not found in /home/ubuntu/workspace/vikk_lhs/app/Student.php on line 8
