@@ -15,8 +15,6 @@ class CreateFileentriesTable extends Migration
     {
         Schema::create('fileentries', function (Blueprint $table) {
             $table->increments('id')->unsigned();
-            $table->integer('student_id')->unsigned()->nullable();
-            $table->foreign('student_id')->references('id')->on('students');
 			$table->string('filename',2083);
 			$table->string('mime');
 			$table->string('original_filename',2083);

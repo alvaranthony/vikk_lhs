@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddRoleIdToStudentsTable extends Migration
+class AddUserIdToInternshipsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class AddRoleIdToStudentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('students', function($table) {
-            $table->integer('role_id')->unsigned()->nullable();
+        Schema::table('internships', function($table) {
+            $table->integer('user_id')->unsigned()->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 
@@ -25,6 +26,8 @@ class AddRoleIdToStudentsTable extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('internships', function($table) {
+        $table->dropColumn('user_id');
+        });
     }
 }

@@ -14,7 +14,7 @@
                         </div>
                     @endif
                 
-                @if (!empty($thesis))
+                @if (count($theses) > 0)
                     <table class="table table-hover table-dark" style="margin-top: 20px;">
                         <thead>
                             <th>Lõputöö nimi</th>
@@ -24,37 +24,27 @@
                             <th></th>
                             <th></th>
                         </thead>
-                        <tbody>
-                            <th>{{$thesis->name}}</th>
-                            <th>{{$thesis->defense_date}}</th>
-                            <th>{{$thesis->instructor_first_name}} {{$thesis->instructor_last_name}}</th>
-                            <th>{{$thesis->reviewer_first_name}} {{$thesis->reviewer_last_name}}</th>
-                            <th><a href="/theses/{{$thesis->id}}/edit" class="btn btn-default btn-xs pull-right">Muuda</a></th>
-                            <th>
-                                {!!Form::open(['action' => ['ThesesController@destroy', $thesis->id], 'method' => 'POST', 'class' => 'pull-right'])!!}
-                                    {{Form::hidden('_method', 'DELETE')}}
-                                    {{Form::submit('X', ['class' => 'btn btn-danger btn-xs'])}}
-                                {!!Form::close()!!}
-                            </th>
-                        </tbody>
+                        @foreach ($theses as $thesis)
+                            <tbody>
+                                <th>{{$thesis->name}}</th>
+                                <th>{{$thesis->defense_date}}</th>
+                                <th>{{$thesis->instructor_first_name}} {{$thesis->instructor_last_name}}</th>
+                                <th>{{$thesis->reviewer_first_name}} {{$thesis->reviewer_last_name}}</th>
+                                <th><a href="/theses/{{$thesis->id}}/edit" class="btn btn-default btn-xs pull-right">Muuda</a></th>
+                                <th>
+                                    {!!Form::open(['action' => ['ThesesController@destroy', $thesis->id], 'method' => 'POST', 'class' => 'pull-right'])!!}
+                                        {{Form::hidden('_method', 'DELETE')}}
+                                        {{Form::submit('X', ['class' => 'btn btn-danger btn-xs'])}}
+                                    {!!Form::close()!!}
+                                </th>
+                            </tbody>
+                        @endforeach
                     </table>
                 @else
                     <h4 style="color:red;">Lõputöö andmeid pole sisestatud!</h4>
                 @endif
-                @if (!empty($fileentry))
-                    <table class="table table-hover table-dark" style="margin-top: 20px;">
-                        <thead>
-                            <th>Lõputöö fail</th>
-                            <th></th>
-                        </thead>
-                        <tbody>
-                            <th>{{$fileentry->original_filename}}</th>
-                            <th><a href="{{route('getentry', $fileentry->filename)}}" class="btn btn-default btn-xs pull-right">Lae alla</th>
-                        </tbody>
-                    </table>
-                @endif
                 </div>
-                </div>
+            </div>
                 
                 <div class="panel panel-default">
                 <div class="panel-heading">Minu praktika andmed</div>
@@ -97,7 +87,6 @@
                 @endif
                 </div>
                 </div>
-            </div>
         </div>
     </div>
 </div>

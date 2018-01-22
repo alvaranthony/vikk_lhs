@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Student;
+use App\User;
 use App\Internship;
 use Auth;
 
@@ -36,7 +36,7 @@ class InternshipController extends Controller
      */
     public function create()
     {
-        return view('student.create_internship');
+        return view('user.create_internship');
     }
 
     /**
@@ -54,10 +54,10 @@ class InternshipController extends Controller
             'duration' => 'required|integer'
             ]);
             
-             //Create new internship for current student
+             //Create new internship for current user
              
              $internship = new Internship;
-             $internship->student_id = Auth::user()->id;
+             $internship->user_id = Auth::user()->id;
              $internship->company_name = $request->input('company_name');
              $internship->start_date = $request->input('start_date');
              $internship->end_date = $request->input('end_date');
@@ -88,11 +88,11 @@ class InternshipController extends Controller
     {
         $internship = Internship::find($id);
         
-        if(Auth::user()->id !== $internship->student_id){
+        if(Auth::user()->id !== $internship->user_id){
             return redirect('/home')->with('error', 'Teil puudub ligipääs!');
         }
         
-        return view ('student.edit_internship')->with('internship', $internship);
+        return view ('user.edit_internship')->with('internship', $internship);
     }
 
     /**
@@ -111,7 +111,7 @@ class InternshipController extends Controller
             'duration' => 'required|integer'
             ]);
             
-             //Update internship for current student
+             //Update internship for current user
              
              $internship = Internship::find($id);
              $internship->company_name = $request->input('company_name');
@@ -133,7 +133,7 @@ class InternshipController extends Controller
     {
         $internship = Internship::find($id);
         
-        if(Auth::user()->id !== $internship->student_id){
+        if(Auth::user()->id !== $internship->user_id){
             return redirect('/home')->with('error', 'Teil puudub ligipääs!');
         }
         

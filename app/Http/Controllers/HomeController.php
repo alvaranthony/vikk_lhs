@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Student;
+use App\User;
 use App\Thesis;
 use App\FileEntry;
+use App\Relation;
 use Auth;
 
 class HomeController extends Controller
@@ -27,13 +28,17 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $student_id = Auth::user()->id;
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        #$fileentry = User::find($user_id)->fileentry;
+        #$thesis_ids = Relation::where('user_id', '=', $user_id)->get()->pluck('thesis_id');
+        #dd($thesis_ids);
         
-        $fileentry = Student::find($student_id)->fileentry;
-        $thesis = Student::find($student_id)->thesis;
-        $intership = Student::find($student_id)->internship;
+        #$theses = Thesis::find($thesis_ids);
+        $theses = $user->thesis;
+        $intership = User::find($user_id)->internship;
         
-        return view('home')->with('thesis', $thesis)->with('internship', $intership)->
-        with('fileentry', $fileentry);
+        return view('home')->with('internship', $intership)->with('theses', $theses);
+        #with('fileentry', $fileentry);
     }
 }

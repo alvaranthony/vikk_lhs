@@ -3,13 +3,9 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Student;
+use App\User;
 
 class FileEntry extends Model
 {
     protected $table = 'fileentries';
-    
-    public function student(){
-        return $this->belongsTo('App\Student');
-    }
 }

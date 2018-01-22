@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\FileEntry;
-use App\Student;
+use App\User;
 use Auth;
 
 class FileEntryController extends Controller
@@ -24,15 +24,15 @@ class FileEntryController extends Controller
     
     public function store(Request $request) {
         
-        $student_id = Auth::user()->id;
-        $student_fileentry = Student::find($student_id)->fileentry;
+        $user_id = Auth::user()->id;
+        $user_fileentry = User::find($user_id)->fileentry;
         
-        if (is_null($student_fileentry)){
+        if (is_null($user_fileentry)){
     		$file = $request->file('thesis_file');
     		$extension = $file->getClientOriginalExtension();
     		Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
     		$entry = new FileEntry;
-    		$entry->student_id = Auth::user()->id;
+    		#$entry->user_id = Auth::user()->id;
     		$entry->filename = $file->getFilename().'.'.$extension;
     		$entry->mime = $file->getClientMimeType();
     		$entry->original_filename = $file->getClientOriginalName();

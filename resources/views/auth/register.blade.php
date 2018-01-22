@@ -11,6 +11,11 @@
                     <form class="form-horizontal" method="POST" action="{{ route('register') }}">
                         {{ csrf_field() }}
 
+                        <div class="form-group">
+                            <label for="user_checkbox" class="col-md-4 control-label">Olen õpilane</label>
+                            <input id="user_checkbox" name="user_checkbox" type="checkbox" checked="checked" value="1">
+                        </div>
+                        
                         <div class="form-group{{ $errors->has('first_name') ? ' has-error' : '' }}">
                             <label for="first_name" class="col-md-4 control-label">Eesnimi</label>
 

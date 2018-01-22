@@ -15,8 +15,6 @@ class CreateThesesTable extends Migration
     {
         Schema::create('theses', function (Blueprint $table) {
             $table->increments('id')->unsigned();
-            $table->integer('student_id')->unsigned()->nullable();
-            $table->foreign('student_id')->references('id')->on('students');
             $table->string('name', 100);
             $table->date('defense_date');
             $table->string('instructor_first_name', 50);

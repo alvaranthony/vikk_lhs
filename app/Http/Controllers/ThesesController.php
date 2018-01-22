@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Thesis; 
-use App\Student;
+use App\User;
+use App\Relation;
 use Auth;
 
 class ThesesController extends Controller
@@ -37,7 +38,7 @@ class ThesesController extends Controller
      */
     public function create()
     {
-        return view ("student.create_thesis");
+        return view ("user.create_thesis");
     }
 
     /**
@@ -48,35 +49,35 @@ class ThesesController extends Controller
      */
     public function store(Request $request)
     {
-        $student_id = Auth::user()->id;
-        $student_thesis = Student::find($student_id)->thesis;
-        if (is_null($student_thesis)){
-            $this->validate($request, [
-            'name' => 'required|string|max:100',
-            'defense_date' => 'required|date',
-            'instructor_first_name' => 'required|max:50',
-            'instructor_last_name' => 'required|max:50',
-            'reviewer_first_name' => 'required|max:50',
-            'reviewer_last_name' => 'required|max:50'
-            ]);
-            
-             //Create new thesis for current student
-             
-             $thesis = new Thesis;
-             $thesis->student_id = Auth::user()->id;
-             $thesis->name = $request->input('name');
-             $thesis->defense_date = $request->input('defense_date');
-             $thesis->instructor_first_name = $request->input('instructor_first_name');
-             $thesis->instructor_last_name = $request->input('instructor_last_name');
-             $thesis->reviewer_first_name = $request->input('reviewer_first_name');
-             $thesis->reviewer_last_name = $request->input('reviewer_last_name');
-             $thesis->save();
-             
-             return redirect('/home')->with('success', 'Lõputöö lisatud!');
-        }
-        else {
-            return redirect('/home');
-        }
+        $user_id = Auth::user()->id;
+        
+        $this->validate($request, [
+        'name' => 'required|string|max:100',
+        'defense_date' => 'required|date',
+        'instructor_first_name' => 'required|max:50',
+        'instructor_last_name' => 'required|max:50',
+        'reviewer_first_name' => 'required|max:50',
+        'reviewer_last_name' => 'required|max:50'
+        ]);
+        
+         //Create new thesis for current user
+         $thesis = new Thesis;
+         $thesis->name = $request->input('name');
+         $thesis->defense_date = $request->input('defense_date');
+         $thesis->instructor_first_name = $request->input('instructor_first_name');
+         $thesis->instructor_last_name = $request->input('instructor_last_name');
+         $thesis->reviewer_first_name = $request->input('reviewer_first_name');
+         $thesis->reviewer_last_name = $request->input('reviewer_last_name');
+         $thesis->save();
+         
+         $thesis->user()->attach($user_id);
+         //Add relation to thesis and user
+         #$relation = new Relation; 
+         #$relation->thesis_id = $thesis->id;
+         #$relation->user_id = Auth::user()->id;
+         #$relation->save();
+         
+         return redirect('/home')->with('success', 'Lõputöö lisatud!');
     }
 
     /**
@@ -100,11 +101,7 @@ class ThesesController extends Controller
     {
         $thesis = Thesis::find($id);
         
-        if(Auth::user()->id !== $thesis->student_id){
-            return redirect('/home')->with('error', 'Teil puudub ligipääs!');
-        }
-        
-        return view ('student.edit_thesis')->with('thesis', $thesis);
+        return view ('user.edit_thesis')->with('thesis', $thesis);
     }
 
     /**
@@ -125,7 +122,7 @@ class ThesesController extends Controller
             'reviewer_last_name' => 'required|max:50'
         ]);
             
-         //Update thesis for current student
+         //Update thesis for current user
          
          $thesis = Thesis::find($id);
          $thesis->name = $request->input('name');
@@ -148,10 +145,6 @@ class ThesesController extends Controller
     public function destroy($id)
     {
         $thesis = Thesis::find($id);
-        
-        if(Auth::user()->id !== $thesis->student_id){
-            return redirect('/home')->with('error', 'Teil puudub ligipääs!');
-        }
         
         $thesis->delete();
         return redirect('/home');

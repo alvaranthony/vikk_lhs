@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Student;
+use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use App\Role;
+use Auth;
+
 
 class RegisterController extends Controller
 {
@@ -50,9 +53,9 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
-            'id_code' => 'required|string|max:11|unique:students',
-            'phone_number' => 'required|string|max:16|unique:students',
-            'email' => 'required|string|email|max:255|unique:students',
+            'id_code' => 'required|string|max:11|unique:users',
+            'phone_number' => 'required|string|max:16|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
         ]);
     }
@@ -65,7 +68,9 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return Student::create([
+        $default_role = Role::find(7)->id;
+        $student_role = Role::find(1)->id;
+        $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'id_code' => $data['id_code'],
@@ -73,5 +78,20 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
+        
+        if (!isset($data['user_checkbox']))
+        {
+            $user->role()->attach($default_role);
+        }
+        else if (isset($data['user_checkbox']))
+        {
+            $user->role()->attach($student_role);
+        }
+        
+        return $user;
+        
+        //TODO 
+        //MUUTA ROLLIDE MÄÄRAMINE CUSTOM FUNKTSIOONIDEGA
+        //ERROR HANDLING
     }
 }
