@@ -33,6 +33,10 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
     
+    public function fileentry(){
+        return $this->hasMany('App\FileEntry');
+    }
+    
     public function internship(){
         return $this->hasMany('App\Internship');
     }
@@ -47,8 +51,7 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Role', 'roles_theses_users')->withPivot('thesis_id');
     }
     
-    
-    #public function relation(){
+    #public function relations(){
     #    return $this->hasMany('App\Relation', 'relations');
     #}
 }

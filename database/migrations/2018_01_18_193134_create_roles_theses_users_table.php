@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRolesthesesusersTable extends Migration
+class CreateRolesThesesUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -21,7 +21,6 @@ class CreateRolesthesesusersTable extends Migration
             $table->foreign('thesis_id')->references('id')->on('theses')->onDelete('cascade');
             $table->integer('user_id')->unsigned()->nullable()->index();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->timestamps();
         });
     }
 

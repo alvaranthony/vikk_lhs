@@ -10,16 +10,18 @@ use Illuminate\Database\Eloquent\Model;
 class Relation extends Model
 {
     protected $table = "relations";
+    public $timestamps = false;
+    
     
     public function user(){
-        return $this->belongsTo('App\User');
+        return $this->belongsToMany('App\User');
     }
     
     public function thesis(){
-        return $this->belongsTo('App\Thesis');
+        return $this->belongsToMany('App\Thesis');
     }
     
     public function role(){
-        return $this->belongsTo('App\Role');
+        return $this->belongsToMany('App\Role');
     }
 }

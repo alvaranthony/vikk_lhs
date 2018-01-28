@@ -25,25 +25,19 @@ class FileEntryController extends Controller
     public function store(Request $request) {
         
         $user_id = Auth::user()->id;
-        $user_fileentry = User::find($user_id)->fileentry;
         
-        if (is_null($user_fileentry)){
-    		$file = $request->file('thesis_file');
-    		$extension = $file->getClientOriginalExtension();
-    		Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
-    		$entry = new FileEntry;
-    		#$entry->user_id = Auth::user()->id;
-    		$entry->filename = $file->getFilename().'.'.$extension;
-    		$entry->mime = $file->getClientMimeType();
-    		$entry->original_filename = $file->getClientOriginalName();
-     
-    		$entry->save();
-     
-    		return redirect('home')->with('success', 'Lõputöö üles laetud!');
-        }
-        else{
-            return redirect('home');
-        }
+		$file = $request->file('thesis_file');
+		$extension = $file->getClientOriginalExtension();
+		Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
+		$entry = new FileEntry;
+		$entry->user_id = $user_id;
+		$entry->filename = $file->getFilename().'.'.$extension;
+		$entry->mime = $file->getClientMimeType();
+		$entry->original_filename = $file->getClientOriginalName();
+ 
+		$entry->save();
+ 
+		return redirect('home')->with('success', 'Lõputöö üles laetud!');
     }
     
     public function get($filename){
@@ -51,10 +45,12 @@ class FileEntryController extends Controller
         if (Storage::disk('local')->exists($filename)){
             
     		$fileentry = Fileentry::where('filename', '=', $filename)->firstOrFail();
-    		$file_name_orig = $fileentry->original_filename;
+    		$file_name_original = $fileentry->original_filename;
     		$file = Storage::disk('local')->get($fileentry->filename);
      
-    		return (new Response($file, 200))->header('Content-Type', $fileentry->mime);
+    		return (new Response($file, 200))
+    		    ->header('Content-Type', $fileentry->mime)
+    		    ->header('Content-disposition','attachment; filename="'. $file_name_original .'"');
         }
         else{
             return redirect('home');

@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use App\Role;
+#use App\Relation;
 use Auth;
 
 
@@ -68,8 +69,9 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $default_role = Role::find(7)->id;
-        $student_role = Role::find(1)->id;
+        $default_role_id = Role::find(7)->id;
+        $student_role_id = Role::find(1)->id;
+        
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
@@ -79,15 +81,21 @@ class RegisterController extends Controller
             'password' => bcrypt($data['password']),
         ]);
         
+        #$relation = new Relation;
+        #$relation->user_id = $user->id;
+        
         if (!isset($data['user_checkbox']))
         {
-            $user->role()->attach($default_role);
+            $user->role()->attach($default_role_id);
+            #$relation->role_id = $default_role_id;
         }
         else if (isset($data['user_checkbox']))
         {
-            $user->role()->attach($student_role);
+            $user->role()->attach($student_role_id);
+            #$relation->role_id = $student_role_id;
         }
         
+        #$relation->save();
         return $user;
         
         //TODO 

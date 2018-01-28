@@ -12,10 +12,6 @@ class Thesis extends Model
 {
     protected $table = 'theses';
     
-    public function fileentry(){
-        return $this->hasMany('App\FileEntry');
-    }
-    
     //modified
     
     public function user(){
@@ -27,7 +23,7 @@ class Thesis extends Model
     }
     
     
-    #public function relation(){
+    #public function relations(){
     #    return $this->hasMany('App\Relation', 'relations');
     #}
 }

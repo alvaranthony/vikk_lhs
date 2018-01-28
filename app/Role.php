@@ -21,8 +21,7 @@ class Role extends Model
         return $this->belongsToMany('App\Thesis', 'roles_theses_users')->withPivot('user_id');
     }
     
-    
-    #public function relation(){
+    #public function relations(){
     #    return $this->hasMany('App\Relation', 'relations');
     #}
 }

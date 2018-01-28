@@ -1,0 +1,1 @@
+mysqldump -u root -p vikk_lhs > vikk_lhs.sql

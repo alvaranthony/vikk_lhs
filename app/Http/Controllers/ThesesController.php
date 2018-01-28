@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Thesis; 
 use App\User;
 use App\Relation;
+use App\Role;
 use Auth;
 
 class ThesesController extends Controller
@@ -50,34 +51,49 @@ class ThesesController extends Controller
     public function store(Request $request)
     {
         $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        $student_role_id = Role::find(1)->id;
         
-        $this->validate($request, [
-        'name' => 'required|string|max:100',
-        'defense_date' => 'required|date',
-        'instructor_first_name' => 'required|max:50',
-        'instructor_last_name' => 'required|max:50',
-        'reviewer_first_name' => 'required|max:50',
-        'reviewer_last_name' => 'required|max:50'
-        ]);
+        //check if user already has thesis 
+        $hasThesis = $user->thesis()->where('role_id', $student_role_id)->exists();
         
-         //Create new thesis for current user
-         $thesis = new Thesis;
-         $thesis->name = $request->input('name');
-         $thesis->defense_date = $request->input('defense_date');
-         $thesis->instructor_first_name = $request->input('instructor_first_name');
-         $thesis->instructor_last_name = $request->input('instructor_last_name');
-         $thesis->reviewer_first_name = $request->input('reviewer_first_name');
-         $thesis->reviewer_last_name = $request->input('reviewer_last_name');
-         $thesis->save();
+        if ($hasThesis == false)
+        {
+            $this->validate($request, [
+            'name' => 'required|string|max:100',
+            'defense_date' => 'required|date',
+            'instructor_first_name' => 'required|max:50',
+            'instructor_last_name' => 'required|max:50',
+            'reviewer_first_name' => 'required|max:50',
+            'reviewer_last_name' => 'required|max:50'
+            ]);
+            
+            //Create new thesis for current user
+            $thesis = new Thesis;
+            $thesis->name = $request->input('name');
+            $thesis->defense_date = $request->input('defense_date');
+            $thesis->instructor_first_name = $request->input('instructor_first_name');
+            $thesis->instructor_last_name = $request->input('instructor_last_name');
+            $thesis->reviewer_first_name = $request->input('reviewer_first_name');
+            $thesis->reviewer_last_name = $request->input('reviewer_last_name');
+            $thesis->save();
          
-         $thesis->user()->attach($user_id);
-         //Add relation to thesis and user
-         #$relation = new Relation; 
-         #$relation->thesis_id = $thesis->id;
-         #$relation->user_id = Auth::user()->id;
-         #$relation->save();
+            $user->thesis()->attach($thesis->id, array('role_id' => $student_role_id));
+            #$thesis->user()->attach($user_id);
          
-         return redirect('/home')->with('success', 'Lõputöö lisatud!');
+         
+            //Add relation to thesis and user
+            #$relation = new Relation; 
+            #$relation->thesis_id = $thesis->id;
+            #$relation->user_id = Auth::user()->id;
+            #$relation->save();
+             
+            return redirect('/home')->with('success', 'Lõputöö lisatud!');
+        }
+        else 
+        {
+            return redirect('/home');
+        }
     }
 
     /**

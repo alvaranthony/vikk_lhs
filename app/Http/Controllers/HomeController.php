@@ -7,6 +7,7 @@ use App\User;
 use App\Thesis;
 use App\FileEntry;
 use App\Relation;
+use App\Role;
 use Auth;
 
 class HomeController extends Controller
@@ -30,15 +31,23 @@ class HomeController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
-        #$fileentry = User::find($user_id)->fileentry;
+        //get thesis for current student 
+        #$thesis = $user->thesis()->where('role_id', 1)->first();
+        #$thesis_fileentry = $thesis->fileentry;
+        #dd($thesis_fileentry);
         #$thesis_ids = Relation::where('user_id', '=', $user_id)->get()->pluck('thesis_id');
         #dd($thesis_ids);
         
         #$theses = Thesis::find($thesis_ids);
+        $roles = Role::all()->pluck('name', 'id')->toArray();
+        $fileentries = $user->fileentry;
         $theses = $user->thesis;
         $intership = User::find($user_id)->internship;
         
-        return view('home')->with('internship', $intership)->with('theses', $theses);
-        #with('fileentry', $fileentry);
+        return view('home')
+            ->with('internship', $intership)
+            ->with('theses', $theses)
+            ->with('roles', $roles)
+            ->with('fileentries', $fileentries);
     }
 }
