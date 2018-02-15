@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
+<div class="container container-custom">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
@@ -25,16 +25,8 @@
                             {{Form::text('defense_date', '', ['id' => 'datepicker', 'class' => 'form-control datepicker-cls', 'placeholder' => 'yyyy-mm-dd'])}}
                         </div>
                         <div class="form-group">
-                            {{Form::label('instructor_first_name', 'Juhendaja eesnimi')}}
-                            {{Form::text('instructor_first_name', '', ['class' => 'form-control', 'placeholder' => 'Eesnimi'])}}
-                            {{Form::label('instructor_last_name', 'Juhendaja perenimi')}}
-                            {{Form::text('instructor_last_name', '', ['class' => 'form-control', 'placeholder' => 'Perenimi'])}}
-                        </div>
-                        <div class="form-group">
-                            {{Form::label('reviewer_first_name', 'Retsensendi eesnimi')}}
-                            {{Form::text('reviewer_first_name', '', ['class' => 'form-control', 'placeholder' => 'Eesnimi'])}}
-                            {{Form::label('reviewer_last_name', 'Retsensendi perenimi')}}
-                            {{Form::text('reviewer_last_name', '', ['class' => 'form-control', 'placeholder' => 'Perenimi'])}}
+                            {{Form::label('thesis_instructor', 'Vali juhendaja')}}
+                            {{Form::select('thesis_instructor', $usersList, null, ['class' => 'form-control', 'placeholder' => 'Vali'])}}
                         </div>
                         <div class="btn-toolbar">
                             {{Form::submit('Sisesta', ['class' => 'btn btn-primary'])}}
@@ -58,6 +50,7 @@
                             {{Form::label('thesis_file', 'Lõputöö fail')}}
                             {{Form::file('thesis_file', '', ['class' => 'form-control'])}}
                         </div>
+                        <p>Fail peab olema .pdf formaadis!</p>
                         <div class="btn-toolbar">
                             {{Form::submit('Lae üles', ['class' => 'btn btn-primary'])}}
                         </div>

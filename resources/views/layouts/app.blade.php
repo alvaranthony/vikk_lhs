@@ -12,11 +12,14 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/custom_navbar.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/custom_body.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-default navbar-static-top">
+        <nav class="navbar navbar-default navbar-static-top navbar-custom">
             <div class="container">
                 <div class="navbar-header">
 
@@ -29,8 +32,8 @@
                     </button>
 
                     <!-- Branding Image -->
-                    <a class="navbar-brand" href="{{ url('/') }}">
-                        {{ config('app.name', 'Laravel') }}
+                    <a class="navbar-brand" href="{{ url('/home') }}">
+                        <img src="{{URL::asset('/images/vikklogohall.png')}}" alt="logo" height="60" width="650">
                     </a>
                 </div>
 
@@ -44,25 +47,50 @@
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
                         @guest
-                            <li><a href="{{ route('login') }}">Login</a></li>
-                            <li><a href="{{ route('register') }}">Register</a></li>
+                            <li><a href="{{ route('login') }}">Sisene</a></li>
+                            <li><a href="{{ route('register') }}">Registreeri</a></li>
                         @else
+                            @if (Auth::user()->hasRole('Õpilane'))
+                                 <li>
+                                    <a href="/theses/create">
+                                        Sisesta lõputöö andmed
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/internships/create">
+                                        Sisesta praktika andmed
+                                    </a>
+                                </li>
+                            @elseif (Auth::user()->hasRole('Õpetaja'))
+                                <li>
+                                    <a href="/theses">
+                                        Kõikide lõputööde andmed
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/internships">
+                                        Kõikide praktikate andmed
+                                    </a>
+                                </li>
+                                @if (Auth::user()->hasRole('Juhendaja'))
+                                    <li>
+                                        <a href="/instructor/theses">
+                                            Minu poolt juhendatavad lõputööd
+                                        </a>
+                                    </li>
+                                @endif
+                            @elseif(Auth::user()->hasRole('Juhendaja'))
+                                <li>
+                                    <a href="/instructor/theses">
+                                        Minu poolt juhendatavad lõputööd
+                                    </a>
+                                </li>
+                            @endif
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true">
                                     {{ Auth::user()->first_name }} {{ Auth::user()->last_name }} <span class="caret"></span>
                                 </a>
-
                                 <ul class="dropdown-menu">
-                                    <li>
-                                        <a href="/theses/create">
-                                            Sisesta lõputöö andmed
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="/internships/create">
-                                            Sisesta praktika andmed
-                                        </a>
-                                    </li>
                                     <li>
                                         <a href="{{ route('logout') }}"
                                             onclick="event.preventDefault();

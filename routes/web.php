@@ -19,6 +19,8 @@ Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::get('/instructor/theses', 'ThesesController@instructorTheses');
+
 Route::resource('theses', 'ThesesController');
 
 Route::resource('internships', 'InternshipController');

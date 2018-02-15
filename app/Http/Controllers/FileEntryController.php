@@ -25,19 +25,34 @@ class FileEntryController extends Controller
     public function store(Request $request) {
         
         $user_id = Auth::user()->id;
-        
-		$file = $request->file('thesis_file');
-		$extension = $file->getClientOriginalExtension();
-		Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
-		$entry = new FileEntry;
-		$entry->user_id = $user_id;
-		$entry->filename = $file->getFilename().'.'.$extension;
-		$entry->mime = $file->getClientMimeType();
-		$entry->original_filename = $file->getClientOriginalName();
- 
-		$entry->save();
- 
-		return redirect('home')->with('success', 'Lõputöö üles laetud!');
+        $user = User::find($user_id);
+        $thesis = $user->thesis->first();
+        $file = $request->file('thesis_file');
+        if ($file)
+        {
+            $allowed = array("application/pdf");
+            if(in_array($file->getClientMimeType(), $allowed))
+            {
+        		$extension = $file->getClientOriginalExtension();
+        		Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
+        		$entry = new FileEntry;
+        		$entry->thesis_id = $thesis->id;
+        		$entry->filename = $file->getFilename().'.'.$extension;
+        		$entry->mime = $file->getClientMimeType();
+        		$entry->original_filename = $file->getClientOriginalName();
+        		$entry->save();
+         
+        		return redirect('home')->with('success', 'Lõputöö üles laetud!');
+            }
+            else
+            {
+                return redirect('home');
+            }
+        }
+        else 
+        {
+            return redirect('home');
+        }
     }
     
     public function get($filename){
@@ -52,7 +67,8 @@ class FileEntryController extends Controller
     		    ->header('Content-Type', $fileentry->mime)
     		    ->header('Content-disposition','attachment; filename="'. $file_name_original .'"');
         }
-        else{
+        else
+        {
             return redirect('home');
         }
     }

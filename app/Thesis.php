@@ -7,6 +7,7 @@ use App\User;
 use App\Role;
 use App\FileEntry;
 use App\Relation;
+use App\Status;
 
 class Thesis extends Model
 {
@@ -22,6 +23,13 @@ class Thesis extends Model
         return $this->belongsToMany('App\Role', 'roles_theses_users')->withPivot('user_id');
     }
     
+     public function fileentry(){
+        return $this->hasMany('App\FileEntry');
+    }
+    
+    public function status(){
+        return $this->belongsTo('App\Status');
+    }
     
     #public function relations(){
     #    return $this->hasMany('App\Relation', 'relations');

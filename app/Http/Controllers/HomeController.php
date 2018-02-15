@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+#use Helper;
 use App\Thesis;
 use App\FileEntry;
-use App\Relation;
+use App\Internship;
 use App\Role;
 use Auth;
+use DB;
 
 class HomeController extends Controller
 {
@@ -31,23 +33,17 @@ class HomeController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
-        //get thesis for current student 
-        #$thesis = $user->thesis()->where('role_id', 1)->first();
-        #$thesis_fileentry = $thesis->fileentry;
-        #dd($thesis_fileentry);
-        #$thesis_ids = Relation::where('user_id', '=', $user_id)->get()->pluck('thesis_id');
-        #dd($thesis_ids);
-        
-        #$theses = Thesis::find($thesis_ids);
-        $roles = Role::all()->pluck('name', 'id')->toArray();
-        $fileentries = $user->fileentry;
+        $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
         $theses = $user->thesis;
-        $intership = User::find($user_id)->internship;
-        
+        $roles = Role::all()->pluck('name', 'id')->toArray();
+        $intership = $user->internship;
+        #$instructor_id = $thesis->role->where('id', 3)->first()->pivot->user_id;
+        #$instructor = User::find($instructor_id)->only('first_name', 'last_name');
         return view('home')
             ->with('internship', $intership)
             ->with('theses', $theses)
-            ->with('roles', $roles)
-            ->with('fileentries', $fileentries);
+            ->with('users_all', $users_all)
+            ->with('user', $user)
+            ->with('roles', $roles);
     }
 }
