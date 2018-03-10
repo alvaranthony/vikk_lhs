@@ -4,17 +4,14 @@
 <div class="container container-custom">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div class="panel-heading">Muuda praktika andmeid</div>
-
                 <div class="panel-body">
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
                         </div>
                     @endif
-                    
-                
                     {!! Form::open(['action' => ['InternshipController@update', $internship->id], 'method' => 'PUT']) !!}
                         <div class="form-group">
                             {{Form::label('company_name', 'Ettevõtte nimi')}}

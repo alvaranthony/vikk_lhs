@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Http\Response;
+use App\FileEntry;
 use App\Thesis;
-use App\Fileentry;
-use Helper;
+use App\Status;
+use App\Group;
 use App\User;
 use App\Role;
-use App\Status;
+use Helper;
 use Auth;
 use DB;
 
@@ -24,7 +28,6 @@ class ThesesController extends Controller
         $this->middleware('auth');
     }
     
-    
     /**
      * Display a listing of the resource.
      *
@@ -35,6 +38,7 @@ class ThesesController extends Controller
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
         
+        //check if current user has teacher role
         if ($user->hasRole('Õpetaja'))
         {
             if($request->input('thesis_status'))
@@ -45,18 +49,21 @@ class ThesesController extends Controller
             {
                 $theses_all = Thesis::where('name', 'like', '%'.$request->input('name').'%')->get();
             }
+            elseif($request->input('study_group'))
+            {
+                $theses_all = Thesis::all()->where('group_id', $request->input('study_group'));
+            }
             else
             {
                 $theses_all = Thesis::all();
             }
             
-            $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
             $statuses = Status::all()->pluck('name', 'id')->prepend('Kõik', '');
+            $groups_all = Group::all()->pluck('name', 'id')->prepend('Kõik', '');
             
             return view('theses')
-                ->with('user', $user)
                 ->with('statusList', $statuses)
-                ->with('users_all', $users_all)
+                ->with('groupsList', $groups_all)
                 ->with('theses_all', $theses_all);
         }
         else 
@@ -69,14 +76,12 @@ class ThesesController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
-        $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
         $theses = $user->thesis;
         
+        //check if current user has instructor role
         if ($user->hasRole('Juhendaja'))
         {
-            return view('instructor_theses')
-                ->with('users_all', $users_all)
-                ->with('theses', $theses);
+            return view('instructor_theses')->with('theses', $theses);
         }
         else 
         {
@@ -94,13 +99,28 @@ class ThesesController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
+        $student_role_id = Role::find(1)->id;
+        
+        //check if current user has teacher role
         //let user create new thesis if user is student
         if ($user->hasRole('Õpilane'))
-        {
-            $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
-            //get a list of all non students
-            $non_students = Helper::getNonStudents($users_all);
-            return view ("user.create_thesis")->with('usersList', $non_students);
+        {   
+            //check if user already has thesis
+            $hasThesis = $user->thesis()->where('role_id', $student_role_id)->exists();
+            if($hasThesis === false)
+            {
+                $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
+                $groups_all = Group::all()->pluck('name', 'id');
+                //get a list of all non students
+                $non_students = Helper::getNonStudents($users_all);
+                return view ("user.create_thesis")
+                    ->with('usersList', $non_students)
+                    ->with('groupsList', $groups_all);
+            }
+            else
+            {
+                return redirect('/home');
+            }
         }
         else 
         {
@@ -121,8 +141,8 @@ class ThesesController extends Controller
         $student_role_id = Role::find(1)->id;
         $instructor_role_id = Role::find(3)->id;
         $status_submit_instructor = Status::find(1)->id;
-        //check if current user has student role
         
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             //check if user already has thesis 
@@ -133,12 +153,14 @@ class ThesesController extends Controller
                 $this->validate($request, [
                 'name' => 'required|string|max:100',
                 'defense_date' => 'required|date',
-                'thesis_instructor' => 'required'
+                'thesis_instructor' => 'required', 
+                'study_group' => 'required'
                 ]);
                 
                 //Create new thesis for current user
                 $thesis = new Thesis;
                 $thesis->status_id = $status_submit_instructor;
+                $thesis->group_id = $request->input('study_group');
                 $thesis->name = $request->input('name');
                 $thesis->defense_date = $request->input('defense_date');
                 $thesis->save();
@@ -154,11 +176,23 @@ class ThesesController extends Controller
                     $thesis->user()->attach($request->input('thesis_instructor'), array('role_id' => $instructor_role_id));
                 }
                 
-                //Add relation to thesis and user
-                #$relation = new Relation; 
-                #$relation->thesis_id = $thesis->id;
-                #$relation->user_id = Auth::user()->id;
-                #$relation->save();
+                //upload thesis file
+                $file = $request->file('thesis_file');
+                if ($file)
+                {
+                    $allowed = array("application/pdf");
+                    if(in_array($file->getClientMimeType(), $allowed))
+                    {
+                		$extension = $file->getClientOriginalExtension();
+                		Storage::disk('local')->put($file->getFilename().'.'.$extension,  File::get($file));
+                		$entry = new FileEntry;
+                		$entry->thesis_id = $thesis->id;
+                		$entry->filename = $file->getFilename().'.'.$extension;
+                		$entry->mime = $file->getClientMimeType();
+                		$entry->original_filename = $file->getClientOriginalName();
+                		$entry->save();
+                    }
+                }
                  
                 return redirect('/home')->with('success', 'Lõputöö lisatud!');
             }
@@ -181,13 +215,13 @@ class ThesesController extends Controller
      */
     public function show($id)
     {
-        $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
+        $current_user = User::find(Auth::user()->id);
         $thesis = Thesis::find($id);
         $statuses = DB::table('statuses')->whereIn('id', [1,2,3])->pluck('name', 'id');
         $status_id = $thesis->status->id;
         
         return view('thesis')
-            ->with('users_all', $users_all)
+            ->with('current_user', $current_user)
             ->with('statusList', $statuses)
             ->with('status_id', $status_id)
             ->with('thesis', $thesis);
@@ -206,6 +240,8 @@ class ThesesController extends Controller
         $student_role_id = Role::find(1)->id;
         $thesis = Thesis::find($id);
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
+        
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             if ($user_id !== $thesis_user_id)
@@ -215,10 +251,8 @@ class ThesesController extends Controller
             else 
             {
                 $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
-                #$statuses = Status::all()->pluck('name', 'id');
-                #$status_id = $thesis->status->id;
+                $groups_all = Group::all()->pluck('name', 'id');
                 $non_students = Helper::getNonStudents($users_all);
-                
                 
                 foreach ($thesis->role as $instructor)
                 {
@@ -226,17 +260,12 @@ class ThesesController extends Controller
                     {
                         $insructor_id = $instructor->pivot->user_id;
                     }
-                    else
-                    {
-                        $insructor_id = NULL;
-                    }
                 }
                 
                 return view ('user.edit_thesis')
                     ->with('thesis', $thesis)
                     ->with('instructor_id', $insructor_id)
-                    #->with('statusList', $statuses)
-                    #->with('status_id', $status_id)
+                    ->with('groupsList', $groups_all)
                     ->with('usersList', $non_students);
             }
         }
@@ -260,6 +289,8 @@ class ThesesController extends Controller
         $thesis = Thesis::find($id);
         $student_role_id = Role::find(1)->id;
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
+        
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             if ($user_id !== $thesis_user_id){
@@ -272,27 +303,29 @@ class ThesesController extends Controller
                 'defense_date' => 'required|date'
                 ]);
                     
-                 //Update thesis for current user
-                 $thesis = Thesis::find($id);
-                 $thesis->name = $request->input('name');
-                 $thesis->defense_date = $request->input('defense_date');
-                 //update thesis status
-                 #$thesis->status_id = $request->input('thesis_status');
-                 $thesis->save();
-                 
-                 //update thesis instructor 
-                 foreach ($thesis->role as $instructor)
-                  {
-                      if ($instructor->id == 3)
-                      {
-                          $instructor->pivot->user_id = $request->input('thesis_instructor');
-                          $instructor->pivot->save();
-                      }
-                  }
-                 
-                 return redirect('/home')->with('success', 'Lõputöö andmed muudetud!');
+                //Update thesis for current user
+                $thesis = Thesis::find($id);
+                $thesis->name = $request->input('name');
+                $thesis->defense_date = $request->input('defense_date');
+                $thesis->group_id = $request->input('study_group_id');
+                //update thesis status
+                #$thesis->status_id = $request->input('thesis_status');
+                $thesis->save();
+                
+                //update thesis instructor 
+                foreach ($thesis->role as $instructor)
+                {
+                if ($instructor->id == 3)
+                    {
+                        $instructor->pivot->user_id = $request->input('thesis_instructor');
+                        $instructor->pivot->save();
+                    }
+                }
+                
+                return redirect('/home')->with('success', 'Lõputöö andmed muudetud!');
             }
         }
+        
         elseif ($user->hasRole('Juhendaja'))
         {
             if ($request->input('thesis_status'))
@@ -329,6 +362,7 @@ class ThesesController extends Controller
         $student_role_id = Role::find(1)->id;
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
         
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             if ($user_id !== $thesis_user_id)

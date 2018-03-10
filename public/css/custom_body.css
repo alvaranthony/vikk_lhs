@@ -11,3 +11,11 @@ body{
     opacity: 0.9;
     width: 100%;
 }
+
+.comment-custom
+{
+    padding: 1%;
+    border-radius: 5px;
+    border: 1px solid lightgrey;
+    background-color: #FFFEFE;
+}

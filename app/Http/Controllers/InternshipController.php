@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
-#use Helper;
 use App\Internship;
 use Auth;
 
@@ -40,8 +39,7 @@ class InternshipController extends Controller
                 $internships_all = Internship::all();
             }
             
-            return view('internships')
-                ->with('internships_all', $internships_all);
+            return view('internships')->with('internships_all', $internships_all);
         }
         else 
         {
@@ -58,6 +56,7 @@ class InternshipController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
+        
         //check if current user has student role
         if($user->hasRole('Õpilane'))
         {
@@ -79,8 +78,8 @@ class InternshipController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
-        //check if current user has student role
         
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             $this->validate($request, [
@@ -90,16 +89,16 @@ class InternshipController extends Controller
             'duration' => 'required|integer'
             ]);
             
-             //Create new internship for current user
-             $internship = new Internship;
-             $internship->user_id = Auth::user()->id;
-             $internship->company_name = $request->input('company_name');
-             $internship->start_date = $request->input('start_date');
-             $internship->end_date = $request->input('end_date');
-             $internship->duration = $request->input('duration');
-             $internship->save();
-             
-             return redirect('/home')->with('success', 'Lõputöö lisatud!');
+            //Create new internship for current user
+            $internship = new Internship;
+            $internship->user_id = Auth::user()->id;
+            $internship->company_name = $request->input('company_name');
+            $internship->start_date = $request->input('start_date');
+            $internship->end_date = $request->input('end_date');
+            $internship->duration = $request->input('duration');
+            $internship->save();
+            
+            return redirect('/home')->with('success', 'Lõputöö lisatud!');
         }
         else 
         {
@@ -130,6 +129,8 @@ class InternshipController extends Controller
         $internship = Internship::find($id);
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
+        
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             if(Auth::user()->id !== $internship->user_id)
@@ -156,6 +157,8 @@ class InternshipController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
+        
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             $this->validate($request, [
@@ -165,15 +168,15 @@ class InternshipController extends Controller
             'duration' => 'required|integer'
             ]);
             
-             //Update internship for current user
-             $internship = Internship::find($id);
-             $internship->company_name = $request->input('company_name');
-             $internship->start_date = $request->input('start_date');
-             $internship->end_date = $request->input('end_date');
-             $internship->duration = $request->input('duration');
-             $internship->save();
-             
-             return redirect('/home')->with('success', 'Praktika andmed muudetud!');
+            //Update internship for current user
+            $internship = Internship::find($id);
+            $internship->company_name = $request->input('company_name');
+            $internship->start_date = $request->input('start_date');
+            $internship->end_date = $request->input('end_date');
+            $internship->duration = $request->input('duration');
+            $internship->save();
+            
+            return redirect('/home')->with('success', 'Praktika andmed muudetud!');
         }
         else 
         {
@@ -193,6 +196,7 @@ class InternshipController extends Controller
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
         
+        //check if current user has student role
         if ($user->hasRole('Õpilane'))
         {
             if(Auth::user()->id !== $internship->user_id){

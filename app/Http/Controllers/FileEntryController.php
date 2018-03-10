@@ -57,8 +57,8 @@ class FileEntryController extends Controller
     
     public function get($filename){
         
-        if (Storage::disk('local')->exists($filename)){
-            
+        if (Storage::disk('local')->exists($filename))
+        {
     		$fileentry = Fileentry::where('filename', '=', $filename)->firstOrFail();
     		$file_name_original = $fileentry->original_filename;
     		$file = Storage::disk('local')->get($fileentry->filename);

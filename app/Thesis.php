@@ -8,6 +8,8 @@ use App\Role;
 use App\FileEntry;
 use App\Relation;
 use App\Status;
+use App\Comment;
+use App\Group;
 
 class Thesis extends Model
 {
@@ -31,6 +33,21 @@ class Thesis extends Model
         return $this->belongsTo('App\Status');
     }
     
+    public function group(){
+        return $this->belongsTo('App\Group');
+    }
+    
+    public function comment(){
+        return $this->hasMany('App\Comment');
+    }
+    
+    public function author(){
+        return $this->user()->wherePivot('role_id', 1);
+    }
+    
+    public function instructor(){
+        return $this->user()->wherePivot('role_id', 3);
+    }
     #public function relations(){
     #    return $this->hasMany('App\Relation', 'relations');
     #}

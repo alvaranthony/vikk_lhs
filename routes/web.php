@@ -33,3 +33,13 @@ Route::get('fileentry/get/{filename}', [
 Route::post('fileentry/store',[ 
         'as' => 'storeentry', 'uses' => 'FileEntryController@store']);
         
+Route::post('comment/store', 'CommentController@store');
+
+
+//admin
+
+Route::resource('users', 'UserController');
+
+Route::resource('roles', 'RoleController');
+
+Route::resource('groups', 'GroupController');

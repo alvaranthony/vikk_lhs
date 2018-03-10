@@ -56,8 +56,4 @@ class User extends Authenticatable
         
         return false;
     }
-    
-    #public function relations(){
-    #    return $this->hasMany('App\Relation', 'relations');
-    #}
 }

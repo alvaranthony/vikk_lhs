@@ -51,11 +51,13 @@
                             <li><a href="{{ route('register') }}">Registreeri</a></li>
                         @else
                             @if (Auth::user()->hasRole('Õpilane'))
-                                 <li>
-                                    <a href="/theses/create">
-                                        Sisesta lõputöö andmed
-                                    </a>
-                                </li>
+                                 @if (Auth::user()->thesis()->where('role_id', 1)->exists() === false);
+                                     <li>
+                                        <a href="/theses/create">
+                                            Sisesta lõputöö andmed
+                                        </a>
+                                    </li>
+                                @endif
                                 <li>
                                     <a href="/internships/create">
                                         Sisesta praktika andmed
@@ -64,25 +66,36 @@
                             @elseif (Auth::user()->hasRole('Õpetaja'))
                                 <li>
                                     <a href="/theses">
-                                        Kõikide lõputööde andmed
+                                        Lõputööde andmed
                                     </a>
                                 </li>
                                 <li>
                                     <a href="/internships">
-                                        Kõikide praktikate andmed
+                                        Praktikate andmed
                                     </a>
                                 </li>
                                 @if (Auth::user()->hasRole('Juhendaja'))
                                     <li>
                                         <a href="/instructor/theses">
-                                            Minu poolt juhendatavad lõputööd
+                                            Juhendatavad lõputööd
                                         </a>
                                     </li>
                                 @endif
                             @elseif(Auth::user()->hasRole('Juhendaja'))
                                 <li>
                                     <a href="/instructor/theses">
-                                        Minu poolt juhendatavad lõputööd
+                                        Juhendatavad lõputööd
+                                    </a>
+                                </li>
+                            @elseif(Auth::user()->hasRole('Administraator'))
+                                <li>
+                                    <a href="/users">
+                                        Halda kasutajad
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/groups">
+                                        Halda õppegruppe
                                     </a>
                                 </li>
                             @endif
