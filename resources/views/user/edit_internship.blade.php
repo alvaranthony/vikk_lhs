@@ -7,6 +7,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Muuda praktika andmeid</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}

@@ -48,6 +48,10 @@ class Thesis extends Model
     public function instructor(){
         return $this->user()->wherePivot('role_id', 3);
     }
+    
+    public function reviewer(){
+        return $this->user()->wherePivot('role_id', 8);
+    }
     #public function relations(){
     #    return $this->hasMany('App\Relation', 'relations');
     #}

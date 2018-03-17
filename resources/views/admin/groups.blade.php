@@ -19,6 +19,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Õppegruppide loend</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     {!! Form::open(['action' => ['GroupController@store'], 'method' => 'POST']) !!}
                         <div class="form-group pull-left">
                             <div class="form-group">
@@ -50,11 +51,18 @@
                             <thead>
                                 <th></th>
                                 <th>Õppegrupi nimetus</th>
+                                <th class="text-right">Muuda grupi nimetust</th>
                             </thead>
                             @foreach ($groups_all as $group)
                                 <tbody>
                                     <th>{{$loop->iteration}}</th>
                                     <th>{{$group->name}}</th>
+                                    <th class="text-right">
+                                        {!! Form::open(['action' => ['GroupController@update', $group->id], 'method' => 'PUT']) !!}
+                                            {{Form::submit('done', ['class' => 'btn btn-xs btn-default material-icons'])}}
+                                            {{Form::text('updated_group_name', $group->name)}}
+                                        {!! Form::close() !!}
+                                    </th>
                                 </tbody>
                             @endforeach
                         </table>

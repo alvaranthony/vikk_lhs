@@ -8,6 +8,7 @@
                 <div class="panel-heading">Sisene</div>
 
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     <form class="form-horizontal" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 
@@ -39,6 +40,7 @@
                             </div>
                         </div>
 
+                        <!--
                         <div class="form-group">
                             <div class="col-md-6 col-md-offset-4">
                                 <div class="checkbox">
@@ -48,6 +50,7 @@
                                 </div>
                             </div>
                         </div>
+                        -->
 
                         <div class="form-group">
                             <div class="col-md-8 col-md-offset-4">
@@ -55,12 +58,15 @@
                                     Sisene
                                 </button>
 
+                                <!--
                                 <a class="btn btn-link" href="{{ route('password.request') }}">
                                     Forgot Your Password?
                                 </a>
+                                -->
                             </div>
                         </div>
                     </form>
+                    <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
                 </div>
             </div>
         </div>

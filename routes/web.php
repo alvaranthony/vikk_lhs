@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Auth::routes();
@@ -20,6 +20,8 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/instructor/theses', 'ThesesController@instructorTheses');
+
+Route::get('/reviewer/theses', 'ThesesController@reviewerTheses');
 
 Route::resource('theses', 'ThesesController');
 
@@ -35,6 +37,8 @@ Route::post('fileentry/store',[
         
 Route::post('comment/store', 'CommentController@store');
 
+//show user data
+Route::get('myprofile', 'UserController@showProfile');
 
 //admin
 

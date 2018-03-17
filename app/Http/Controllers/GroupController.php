@@ -82,7 +82,7 @@ class GroupController extends Controller
             $group->name = $request->input('new_group_name');
             $group->save();
             
-            return redirect('/groups');
+            return redirect('/groups')->with('success', 'Grupp lisatud!');
         }
         else 
         {
@@ -121,7 +121,28 @@ class GroupController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        $group_exists = Group::where('name', $request->input('updated_group_name'))->exists();
+        
+        //check if current user has student role
+        if ($user->hasRole('Administraator') && !$group_exists)
+        {
+            $this->validate($request, [
+            'updated_group_name' => 'required|string|max:25',
+            ]);
+            
+            //Create new comment for current thesis
+            $group = Group::find($id);
+            $group->name = $request->input('updated_group_name');
+            $group->save();
+            
+            return redirect('/groups')->with('success', 'Grupi nimi muudetud!');
+        }
+        else 
+        {
+            return redirect('/groups');
+        }
     }
 
     /**

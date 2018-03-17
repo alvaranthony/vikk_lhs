@@ -20,6 +20,7 @@
                 <div class="panel panel-primary">
                     <div class="panel-heading">Minu lõputöö andmed</div>
                     <div class="panel-body">
+                        @include('messages.flash-message')
                         @if (session('status'))
                             <div class="alert alert-success">
                                 {{ session('status') }}
@@ -32,6 +33,7 @@
                                         <th>Lõputöö nimi</th>
                                         <th>Kaitsmise kuupäev</th>
                                         <th>Juhendaja</th>
+                                        <th>Retsensent</th>
                                         <th>Staatus</th>
                                         <th>Õppegrupp</th>
                                         <th></th>
@@ -50,6 +52,14 @@
                                         <th>
                                             {{$thesis->instructor->first()->first_name}}
                                             {{$thesis->instructor->first()->last_name}}
+                                        </th>
+                                        <th>
+                                            @if ($thesis->user()->where('role_id', $reviewer_role_id)->exists())
+                                                {{$thesis->reviewer->first()->first_name}}
+                                                {{$thesis->reviewer->first()->last_name}}
+                                            @else
+                                                Pole lisatud!
+                                            @endif
                                         </th>
                                         <th>{{$thesis->status->name}}</th>
                                         <th>{{$thesis->group->name}}</th>
@@ -124,9 +134,36 @@
                             <h4 style="color:red;">Praktika andmeid pole sisestatud</4>
                         @endif
                     </div>
+                    <br>
+                    <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
                 </div>
-            @elseif($user->hasRole('Vaikimisi'))
-                <p>Olete vaikimisi rollis</p>
+            @else($user->hasRole('Vaikimisi'))
+                 <div class="panel panel-primary">
+                    <div class="panel-heading">Esileht</div>
+                    <div class="panel-body">
+                        @if (session('status'))
+                            <div class="alert alert-success">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+                        @if (!($user->hasRole('Juhendaja')))
+                            <div class="alert alert-info alert-block">
+                                <strong>!! Näete automaatselt juhendatavaid lõputöid, kui Teid lõputöö juhendajaks määratakse !!</strong>
+                            </div>
+                        @endif
+                        @if (!($user->hasRole('Retsensent')))
+                            <div class="alert alert-info alert-block">
+                                <strong>!! Näete automaatselt retsenseeritavaid lõputöid, kui Teid lõputöö retsensendiks määratakse !!</strong>
+                            </div>
+                        @endif
+                        <div class="alert alert-danger alert-block">
+                            <strong>
+                                !! Komisjoni liikme, õpetaja, administraatori rolli on võimalik taotleda e-posti aadressi kaudu - admin@admin.com !!
+                            </strong>
+                        </div>
+                        <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
+                    </div>
+                </div>
             @endif
         </div>
     </div>

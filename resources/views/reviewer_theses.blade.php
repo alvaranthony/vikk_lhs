@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-primary">
-                <div class="panel-heading">Minu poolt juhendatavate lõputööde andmed</div>
+                <div class="panel-heading">Minu poolt retsenseeritavate lõputööde andmed</div>
                 <div class="panel-body">
                     @include('messages.flash-message')
                     @if (session('status'))
@@ -43,12 +43,16 @@
                                 <th>{{$thesis->group->name}}</th>
                                 <th>
                                     @if (count($thesis->fileentry) > 0)
-                                        @foreach ($thesis->fileentry as $fileentry)
+                                        @if (count($thesis->fileentry->where('mime', '=', 'application/pdf')) > 0)
                                             <p>
-                                                <a href="{{route('getentry', $fileentry->filename)}}" class="material-icons pull-right">file_download</a>
-                                                {{$fileentry->original_filename}}
+                                                <a href="{{route('getentry', $thesis->fileentry->where('mime', '=', 'application/pdf')->last()->filename)}}" class="material-icons pull-right">
+                                                    file_download
+                                                </a>
+                                                {{$thesis->fileentry->where('mime', '=', 'application/pdf')->last()->original_filename}}
                                             </p>
-                                        @endforeach
+                                        @else
+                                            <p>Pole lisatud!</p>
+                                        @endif
                                     @else
                                         Pole lisatud!
                                     @endif

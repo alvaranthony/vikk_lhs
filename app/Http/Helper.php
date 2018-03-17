@@ -57,7 +57,6 @@ class Helper{
     */
     
     //function to check if current user owns current thesis
-    
     public static function userOwnsThesis($thesis, $student_role_id)
     {
         foreach ($thesis->user as $t_user)
@@ -68,6 +67,20 @@ class Helper{
             }
         }
         return $thesis_user_id;
+    }
+    
+    //function to check if current user is instructor of given thesis
+    public static function userIsInstructorOrReviewer($thesis, $current_user_id, $role_id)
+    {
+        foreach ($thesis->user as $t_user)
+        {
+            if ($t_user->pivot->user_id === $current_user_id && $t_user->pivot->role_id === $role_id)
+            {
+                return true;
+            }
+        }
+        return false;
+        
     }
     
     //function to get all non-student users list

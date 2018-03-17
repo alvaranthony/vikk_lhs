@@ -47,85 +47,101 @@
                     <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
                         @guest
-                            <li><a href="{{ route('login') }}">Sisene</a></li>
-                            <li><a href="{{ route('register') }}">Registreeri</a></li>
+                            <li><a href="{{ route('login') }}" style="color:white;">Sisene</a></li>
+                            <li><a href="{{ route('register') }}" style="color:white;">Registreeri</a></li>
                         @else
-                            @if (Auth::user()->hasRole('Õpilane'))
-                                 @if (Auth::user()->thesis()->where('role_id', 1)->exists() === false);
-                                     <li>
-                                        <a href="/theses/create">
-                                            Sisesta lõputöö andmed
-                                        </a>
-                                    </li>
-                                @endif
-                                <li>
-                                    <a href="/internships/create">
-                                        Sisesta praktika andmed
-                                    </a>
-                                </li>
-                            @elseif (Auth::user()->hasRole('Õpetaja'))
-                                <li>
-                                    <a href="/theses">
-                                        Lõputööde andmed
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/internships">
-                                        Praktikate andmed
-                                    </a>
-                                </li>
-                                @if (Auth::user()->hasRole('Juhendaja'))
-                                    <li>
-                                        <a href="/instructor/theses">
-                                            Juhendatavad lõputööd
-                                        </a>
-                                    </li>
-                                @endif
-                            @elseif(Auth::user()->hasRole('Juhendaja'))
-                                <li>
-                                    <a href="/instructor/theses">
-                                        Juhendatavad lõputööd
-                                    </a>
-                                </li>
-                            @elseif(Auth::user()->hasRole('Administraator'))
-                                <li>
-                                    <a href="/users">
-                                        Halda kasutajad
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/groups">
-                                        Halda õppegruppe
-                                    </a>
-                                </li>
-                            @endif
-                            <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true">
-                                    {{ Auth::user()->first_name }} {{ Auth::user()->last_name }} <span class="caret"></span>
+                            <li>
+                                <a style="color:white; padding:5% 0 5% 0;">
+                                    Tere tulemast {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
                                 </a>
-                                <ul class="dropdown-menu">
+                                <ul>
                                     <li>
-                                        <a href="{{ route('logout') }}"
+                                        <a href="{{ route('logout') }}" style="color:white; float:right; background-color:#79181A; border-radius:5px; padding:2px; margin-left:10px;"
                                             onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                             Logi välja
                                         </a>
-
+                                        <a href="/myprofile" class="material-icons pull-right">account_circle</a>
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                             {{ csrf_field() }}
                                         </form>
                                     </li>
                                 </ul>
+                                
                             </li>
                         @endguest
                     </ul>
                 </div>
             </div>
         </nav>
-
+        @if (!Auth::guest())
+            @if(!(count(Auth::user()->role) < 2 && Auth::user()->hasRole('Vaikimisi')))
+            <nav class="navbar navbar-default navbar-static-top  navbar-custom-secondary">
+                <ul class="nav navbar-nav">
+                    @if (Auth::user()->hasRole('Õpilane'))
+                         @if (Auth::user()->thesis()->where('role_id', 1)->exists() === false);
+                             <li>
+                                <a href="/theses/create">
+                                    Sisesta lõputöö andmed
+                                </a>
+                            </li>
+                        @endif
+                        <li>
+                            <a href="/internships/create">
+                                Sisesta praktika andmed
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->hasRole('Õpetaja'))
+                        <li>
+                            <a href="/theses">
+                                Lõputööde andmed
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/internships">
+                                Praktikate andmed
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->hasRole('Juhendaja'))
+                        <li>
+                            <a href="/instructor/theses">
+                                Juhendatavad lõputööd
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->hasRole('Retsensent'))
+                        <li>
+                            <a href="/reviewer/theses">
+                                Retsenseeritavad lõputööd
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->hasRole('Administraator'))
+                        <li>
+                            <a href="/users">
+                                Halda kasutajad
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/groups">
+                                Halda õppegruppe
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/theses">
+                                Kuva lõputööd
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+            @endif
+        @endif
         @yield('content')
     </div>
-
+    
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}"></script>
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>

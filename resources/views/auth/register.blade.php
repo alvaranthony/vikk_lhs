@@ -8,6 +8,7 @@
                 <div class="panel-heading">Registreering</div>
 
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     <form class="form-horizontal" method="POST" action="{{ route('register') }}">
                         {{ csrf_field() }}
 
@@ -116,6 +117,7 @@
                             </div>
                         </div>
                     </form>
+                    <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
                 </div>
             </div>
         </div>

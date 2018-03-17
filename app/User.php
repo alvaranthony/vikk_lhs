@@ -47,6 +47,14 @@ class User extends Authenticatable
         return $this->belongsToMany('App\Role', 'roles_theses_users')->withPivot('thesis_id');
     }
     
+    public function instructorTheses () {
+        return $this->thesis()->wherePivot('role_id', 3);
+    }
+    
+    public function reviewerTheses () {
+        return $this->thesis()->wherePivot('role_id', 8);
+    }
+    
     public function hasRole($name)
     {
         foreach ($this->role as $role) 

@@ -7,6 +7,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Praktikate andmed</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     {!! Form::open(['action' => ['InternshipController@index'], 'method' => 'GET']) !!}
                         <div class="form-group pull-right">
                             <div class="form-group">

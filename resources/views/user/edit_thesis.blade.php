@@ -7,6 +7,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Muuda lõputöö andmeid</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
@@ -49,7 +50,7 @@
                             {{Form::label('thesis_file', 'Lõputöö fail')}}
                             {{Form::file('thesis_file', '', ['class' => 'form-control'])}}
                         </div>
-                        <p>Fail peab olema .pdf formaadis!</p>
+                        <p>Fail peab olema .pdf või .docx formaadis!</p>
                         <div class="btn-toolbar">
                             {{Form::submit('Lae üles', ['class' => 'btn btn-primary'])}}
                         </div>

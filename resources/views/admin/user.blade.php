@@ -27,6 +27,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">{{$user->first_name}} {{$user->last_name}}</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}

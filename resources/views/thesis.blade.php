@@ -1,12 +1,25 @@
 @extends('layouts.app')
 
 @section('content')
+
+<script>
+    function confirmReviewer()
+    {
+    var x = confirm("Kas olete kindel?");
+    if (x)
+        return true;
+    else
+        return false;
+    }
+</script>
+
 <div class="container container-custom">
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-primary">
                 <div class="panel-heading">{{$thesis->name}}</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     @if (session('status'))
                         <div class="alert alert-success">
                             {{ session('status') }}
@@ -25,7 +38,7 @@
                         {{$thesis->instructor->first()->last_name}}
                     </p>
                     <p><b>Õppegrupp: </b>{{$thesis->group->name}}</p>
-                    @if ($current_user->hasRole('Juhendaja'))
+                    @if ($isInstructor)
                         <p>
                             {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT']) !!}
                                 <div class="form-group">
@@ -35,14 +48,43 @@
                                 </div>
                             {!! Form::close() !!}
                         </p>
-                    <br>
-                    <br>
                     @else
                         <p><b>Staatus: </b>{{$thesis->status->name}}</p>
                     @endif
+                    @if ($hasReviewer)
+                        <p>
+                            <b>Retsensent: </b>
+                            {{$thesis->reviewer->first()->first_name}}
+                            {{$thesis->reviewer->first()->last_name}}
+                        </p>
+                    @endif
+                    @if ($current_user->hasRole('Administraator'))
+                        {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()']) !!}
+                            <div class="form-group">
+                                {{Form::label('thesis_reviewer', $reviewer_add_update.' retsensent')}}
+                                {{Form::select('thesis_reviewer', $usersList, null, ['placeholder' => $reviewer_add_update])}}
+                                {{Form::submit($reviewer_add_update, ['class' => 'btn btn-primary btn-xs'])}}
+                            </div>
+                        {!! Form::close() !!}
+                    @endif
+                    <br>
+                    <br>
+                    @if ($isReviewer)
+                        @if (count($thesis->fileentry->where('mime', '=', 'application/pdf')) > 0)
+                            <p>
+                                <b>Retsenseeritava lõputöö fail: </b>
+                                <br>
+                                <a href="{{route('getentry', $thesis->fileentry->where('mime', '=', 'application/pdf')->last()->filename)}}" class="material-icons">
+                                    file_download
+                                </a>
+                                {{$thesis->fileentry->where('mime', '=', 'application/pdf')->last()->original_filename}}
+                                <br><br>
+                            </p>
+                        @endif
+                    @endif
                     @if (count($thesis->fileentry) > 0)
                         <p>
-                        <b>Lõputöö fail: </b>
+                        <b>Lõputöö fail(id): </b>
                         @foreach ($thesis->fileentry as $fileentry)
                             <br><br>
                             <a href="{{route('getentry', $fileentry->filename)}}" class="material-icons">file_download</a>

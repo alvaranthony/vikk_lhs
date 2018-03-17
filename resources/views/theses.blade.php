@@ -8,13 +8,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Lõputööde andmed</div>
                 <div class="panel-body">
-                    {!! Form::open(['action' => ['ThesesController@index'], 'method' => 'GET']) !!}
-                        <div class="form-group pull-left">
-                            {{Form::label('thesis_status', 'Filtreeri staatuse põhjal')}}
-                            {{Form::select('thesis_status', $statusList, ['class' => 'form-control'])}}
-                            {{Form::submit('Filtreeri', ['class' => 'btn btn-default btn-xs'])}}
-                        </div>
-                    {!! Form::close() !!}
+                    @include('messages.flash-message')
                     {!! Form::open(['action' => ['ThesesController@index'], 'method' => 'GET']) !!}
                         <div class="form-group pull-right">
                             <div class="form-group">
@@ -30,6 +24,13 @@
                     <div class="form-group pull-left">
                         {{Form::label('study_group', 'Filtreeri õppegrupi põhjal')}}
                         {{Form::select('study_group', $groupsList, ['class' => 'form-control'])}}
+                        {{Form::submit('Filtreeri', ['class' => 'btn btn-default btn-xs'])}}
+                    </div>
+                {!! Form::close() !!}
+                {!! Form::open(['action' => ['ThesesController@index'], 'method' => 'GET']) !!}
+                    <div class="form-group pull-right">
+                        {{Form::label('thesis_status', 'Filtreeri staatuse põhjal')}}
+                        {{Form::select('thesis_status', $statusList, ['class' => 'form-control'])}}
                         {{Form::submit('Filtreeri', ['class' => 'btn btn-default btn-xs'])}}
                     </div>
                 {!! Form::close() !!}
@@ -51,7 +52,8 @@
                                 <th>Staatus</th>
                                 <th>Õppegrupp</th>
                                 <th>Juhendaja</th>
-                                <th>Lõputöö fail</th>
+                                <th>Retsensent</th>
+                                <th></th>
                             </thead>
                             @foreach($theses_all as $thesis)
                             <tbody>
@@ -69,16 +71,14 @@
                                     {{$thesis->instructor->first()->last_name}}
                                 </th>
                                 <th>
-                                    @if (count($thesis->fileentry) > 0)
-                                        @foreach ($thesis->fileentry as $fileentry)
-                                            <a href="{{route('getentry', $fileentry->filename)}}" class="material-icons">file_download</a>
-                                            {{$fileentry->original_filename}}<br><br>
-                                        @endforeach
+                                    @if ($thesis->user()->where('role_id', $reviewer_role_id)->exists())
+                                        {{$thesis->reviewer->first()->first_name}}
+                                        {{$thesis->reviewer->first()->last_name}}
                                     @else
                                         Pole lisatud!
                                     @endif
                                 </th>
-                                <th></th>
+                                <th><a href="/theses/{{$thesis->id}}" class="material-icons">open_in_new</a></th>
                              @endforeach
                         </table>
                     @else

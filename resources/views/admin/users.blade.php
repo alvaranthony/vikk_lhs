@@ -19,6 +19,7 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">Kasutajate loend</div>
                 <div class="panel-body">
+                    @include('messages.flash-message')
                     {!! Form::open(['action' => ['UserController@index'], 'method' => 'GET']) !!}
                         <div class="form-group pull-right">
                             <div class="form-group">

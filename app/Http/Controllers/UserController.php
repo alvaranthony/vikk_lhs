@@ -20,6 +20,14 @@ class UserController extends Controller
         $this->middleware('auth');
     }
     
+    public function showProfile()
+    {
+        $user_id = Auth::user()->id;
+        $current_user = User::find($user_id);
+        
+        return view('user.profile')->with('user', $current_user);
+    }
+    
     /**
      * Display a listing of the resource.
      *
@@ -158,7 +166,7 @@ class UserController extends Controller
         {
             $user = User::find($id);   
             $user->delete();
-            return redirect('/users');
+            return redirect('/users')->with('warning', 'Kasutaja kustutatud!');
         }
         else
         {

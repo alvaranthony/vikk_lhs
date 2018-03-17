@@ -39,7 +39,7 @@ class ThesesController extends Controller
         $user = User::find($user_id);
         
         //check if current user has teacher role
-        if ($user->hasRole('Õpetaja'))
+        if ($user->hasRole('Õpetaja') || $user->hasRole('Administraator'))
         {
             if($request->input('thesis_status'))
             {
@@ -59,10 +59,12 @@ class ThesesController extends Controller
             }
             
             $statuses = Status::all()->pluck('name', 'id')->prepend('Kõik', '');
+            $reviewer_role_id = Role::find(8)->id;
             $groups_all = Group::all()->pluck('name', 'id')->prepend('Kõik', '');
             
             return view('theses')
                 ->with('statusList', $statuses)
+                ->with('reviewer_role_id', $reviewer_role_id)
                 ->with('groupsList', $groups_all)
                 ->with('theses_all', $theses_all);
         }
@@ -76,7 +78,7 @@ class ThesesController extends Controller
     {
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
-        $theses = $user->thesis;
+        $theses = $user->instructorTheses;
         
         //check if current user has instructor role
         if ($user->hasRole('Juhendaja'))
@@ -88,6 +90,23 @@ class ThesesController extends Controller
             return redirect('/home');
         }
         
+    }
+    
+    public function reviewerTheses()
+    {
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        $theses = $user->reviewerTheses;
+        
+        //check if current user has reviewer role
+        if ($user->hasRole('Retsensent'))
+        {
+            return view('reviewer_theses')->with('theses', $theses);
+        }
+        else
+        {
+            return redirect('home');
+        }
     }
 
     /**
@@ -180,7 +199,7 @@ class ThesesController extends Controller
                 $file = $request->file('thesis_file');
                 if ($file)
                 {
-                    $allowed = array("application/pdf");
+                    $allowed = array("application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
                     if(in_array($file->getClientMimeType(), $allowed))
                     {
                 		$extension = $file->getClientOriginalExtension();
@@ -217,14 +236,50 @@ class ThesesController extends Controller
     {
         $current_user = User::find(Auth::user()->id);
         $thesis = Thesis::find($id);
-        $statuses = DB::table('statuses')->whereIn('id', [1,2,3])->pluck('name', 'id');
-        $status_id = $thesis->status->id;
+        $users_all = User::select('id', DB::raw("concat(first_name, ' ', last_name) as full_name"))->get();
+        //get a list of all non students
+        $non_students = Helper::getNonStudents($users_all);
         
-        return view('thesis')
-            ->with('current_user', $current_user)
-            ->with('statusList', $statuses)
-            ->with('status_id', $status_id)
-            ->with('thesis', $thesis);
+        if($thesis)
+        {
+            $instructor_role_id = Role::find(3)->id;
+            $student_role_id = Role::find(1)->id;
+            $reviewer_role_id = Role::find(8)->id;
+            $hasReviewer = $thesis->user()->where('role_id', $reviewer_role_id)->exists();
+            $reviewer_add_update = ($hasReviewer ? 'Uuenda' : 'Määra');
+            $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $current_user->id, $instructor_role_id);
+            $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $current_user->id, $reviewer_role_id);
+            $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
+            
+            if ($thesis_user_id === $current_user->id ||
+                $current_user->hasRole('Õpetaja') ||
+                $current_user->hasRole('Administraator') ||
+                $isInstructor ||
+                $isReviewer)
+            {
+                $statuses = DB::table('statuses')->whereIn('id', [1,2,3])->pluck('name', 'id');
+                $status_id = $thesis->status->id;
+                
+                return view('thesis')
+                    ->with('current_user', $current_user)
+                    ->with('usersList', $non_students)
+                    ->with('hasReviewer', $hasReviewer)
+                    ->with('isInstructor', $isInstructor)
+                    ->with('isReviewer', $isReviewer)
+                    ->with('reviewer_add_update', $reviewer_add_update)
+                    ->with('statusList', $statuses)
+                    ->with('status_id', $status_id)
+                    ->with('thesis', $thesis);
+            }
+            else
+            {
+                return redirect()->back()->with('error', 'Teil puudub ligipääs!');
+            }
+        }
+        else
+        {
+            return redirect()->back();
+        }
     }
 
     /**
@@ -288,6 +343,9 @@ class ThesesController extends Controller
         $user = User::find($user_id);
         $thesis = Thesis::find($id);
         $student_role_id = Role::find(1)->id;
+        $reviewer_role_id = Role::find(8)->id;
+        $instructor_role_id = Role::find(3)->id;
+        $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $user_id, $instructor_role_id);
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
         
         //check if current user has student role
@@ -326,7 +384,7 @@ class ThesesController extends Controller
             }
         }
         
-        elseif ($user->hasRole('Juhendaja'))
+        elseif ($isInstructor)
         {
             if ($request->input('thesis_status'))
             {
@@ -342,6 +400,38 @@ class ThesesController extends Controller
                 return redirect('/home');
             }
         }
+        
+        elseif ($user->hasRole('Administraator'))
+        {
+            $hasReviewer = $thesis->user()->where('role_id', $reviewer_role_id)->exists();
+            
+            //check if thesis already has reviewer and if thesis has status "Kaitsmisele lubatud"
+            if ($hasReviewer == false && $thesis->status_id == 3)
+            {
+                //attach user with given thesis as reviewer
+                $thesis->user()->attach($request->input('thesis_reviewer'), array('role_id' => $reviewer_role_id));
+                return redirect()->back()->with('success', 'Retsensent lisatud!');
+            }
+            elseif ($hasReviewer == true && $thesis->status_id == 3)
+            {
+                //update thesis reviewer 
+                foreach ($thesis->role as $reviewer)
+                {
+                if ($reviewer->id == 8)
+                    {
+                        $reviewer->pivot->user_id = $request->input('thesis_reviewer');
+                        $reviewer->pivot->save();
+                    }
+                }
+                
+                return redirect()->back()->with('success', 'Retsensent muudetud!');
+            }
+            else
+            {
+                return redirect()->back()->with('error', 'Antud tööl on kas retsensent olemas või ebapiisav staatus!');
+            }
+        }
+        
         else 
         {
             return redirect('/home');
@@ -371,11 +461,11 @@ class ThesesController extends Controller
             }
             
             $thesis->delete();
-            return redirect('/home');
+            return redirect('/home')->with('warning', 'Lõputöö kustutatud!');
         }
         else
         {
-            return redirect('/home');
+            return redirect('/home')->with('error', 'Teil puudub ligipääs!');
         }
     }
 }

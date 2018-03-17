@@ -30,7 +30,7 @@ class FileEntryController extends Controller
         $file = $request->file('thesis_file');
         if ($file)
         {
-            $allowed = array("application/pdf");
+            $allowed = array("application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
             if(in_array($file->getClientMimeType(), $allowed))
             {
         		$extension = $file->getClientOriginalExtension();
@@ -42,16 +42,16 @@ class FileEntryController extends Controller
         		$entry->original_filename = $file->getClientOriginalName();
         		$entry->save();
          
-        		return redirect('home')->with('success', 'Lõputöö üles laetud!');
+        		return redirect('home')->with('success', 'Fail üles laetud!');
             }
             else
             {
-                return redirect('home');
+                return redirect('home')->with('error', 'Faili formaat ei vasta nõuetele!');
             }
         }
         else 
         {
-            return redirect('home');
+            return redirect('home')->with('error', 'Faili ei ole valitud!');
         }
     }
     
@@ -73,3 +73,7 @@ class FileEntryController extends Controller
         }
     }
 }
+
+
+//HOW TO GET THE LATEST FILEENTRY
+// $thesis->fileentry->where('mime', '=', 'application/pdf')->last();

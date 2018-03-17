@@ -98,7 +98,7 @@ class InternshipController extends Controller
             $internship->duration = $request->input('duration');
             $internship->save();
             
-            return redirect('/home')->with('success', 'Lõputöö lisatud!');
+            return redirect('/home')->with('success', 'Praktika lisatud!');
         }
         else 
         {
@@ -130,20 +130,28 @@ class InternshipController extends Controller
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
         
-        //check if current user has student role
-        if ($user->hasRole('Õpilane'))
+        if ($internship)
         {
-            if(Auth::user()->id !== $internship->user_id)
+            //check if current user has student role
+            if ($user->hasRole('Õpilane'))
             {
-                return redirect('/home')->with('error', 'Teil puudub ligipääs!');
+                if(Auth::user()->id !== $internship->user_id)
+                {
+                    return redirect('/home')->with('error', 'Teil puudub ligipääs!');
+                }
+                
+                return view ('user.edit_internship')->with('internship', $internship);
             }
-            
-            return view ('user.edit_internship')->with('internship', $internship);
+            else 
+            {
+                return redirect('/home');
+            }
         }
         else 
         {
-            return redirect('/home');
+            return redirect()->back();
         }
+        
     }
 
     /**
@@ -204,7 +212,7 @@ class InternshipController extends Controller
             }
             
             $internship->delete();
-            return redirect('/home');
+            return redirect('/home')->with('warning', 'Praktika kustutatud!');
         }
         else 
         {
