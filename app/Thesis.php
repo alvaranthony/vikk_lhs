@@ -10,6 +10,8 @@ use App\Relation;
 use App\Status;
 use App\Comment;
 use App\Group;
+use App\ReviewerGrade;
+use App\ReviewerAssessment;
 
 class Thesis extends Model
 {
@@ -39,6 +41,14 @@ class Thesis extends Model
     
     public function comment(){
         return $this->hasMany('App\Comment');
+    }
+    
+    public function reviewer_grade(){
+        return $this->belongsTo('App\ReviewerGrade');
+    }
+    
+    public function reviewer_assessment(){
+        return $this->belongsTo('App\ReviewerAssessment');
     }
     
     public function author(){

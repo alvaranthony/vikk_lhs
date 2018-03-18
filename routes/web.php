@@ -47,3 +47,5 @@ Route::resource('users', 'UserController');
 Route::resource('roles', 'RoleController');
 
 Route::resource('groups', 'GroupController');
+
+Route::resource('reviewer_assessments', 'ReviewerAssessmentController');

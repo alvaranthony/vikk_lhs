@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddGroupIdToThesesTable extends Migration
+class CreateReviewerAssessmentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class AddGroupIdToThesesTable extends Migration
      */
     public function up()
     {
-        Schema::table('theses', function($table) {
-            $table->integer('group_id')->unsigned()->nullable();
-            $table->foreign('group_id')->references('id')->on('groups');
+        Schema::create('reviewer_assessments', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('assessment', 750);
+            $table->timestamps();
         });
     }
 
@@ -26,8 +27,6 @@ class AddGroupIdToThesesTable extends Migration
      */
     public function down()
     {
-        Schema::table('theses', function($table) {
-            $table->dropColumn('group_id');
-        });
+        Schema::dropIfExists('reviewer_assessments');
     }
 }

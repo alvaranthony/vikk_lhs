@@ -132,12 +132,13 @@ class UserController extends Controller
         //update user roles(for admin)
         if($request->input('user_role'))
         {
+            $user = User::find($id);
             //check if current user has administrator role
-            if($current_user->hasRole('Administraator'))
+            if($current_user->hasRole('Administraator') && !$user->hasRole('Õpilane'))
             {
                 $user = User::find($id);
                 $user->role()->attach($request->input('user_role'));
-                return redirect()->back();
+                return redirect()->back()->with('success', 'Roll lisatud!');
             }
             else
             {

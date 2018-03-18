@@ -27,17 +27,20 @@ class CommentController extends Controller
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
         $instructor_role_id = Role::find(3)->id;
+        $reviewer_role_id = Role::find(8)->id;
         $student_role_id = Role::find(1)->id;
         $thesis = Thesis::find($request->input('thesisId'));
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
-        $isInstructor = (Helper::userIsInstructorOrReviewer($thesis, $user_id, $instructor_role_id));
+        $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $user_id, $instructor_role_id);
+        $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $user_id, $reviewer_role_id);
         
         if ($user->hasRole('Õpetaja') ||
             $user->hasRole('Komisjoni esimees') || 
             $user->hasRole('Komisjoni liige') ||
             $user->hasRole('Administraator') ||
             $thesis_user_id === $user_id ||
-            $isInstructor)
+            $isInstructor ||
+            $isReviewer)
         {
             $this->validate($request, [
             'comment' => 'required|string|max:500',

@@ -4,20 +4,22 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddGroupIdToThesesTable extends Migration
+class RemoveReviewerAssessmentIdFromThesesTable extends Migration
 {
     /**
      * Run the migrations.
      *
      * @return void
      */
+
     public function up()
     {
         Schema::table('theses', function($table) {
-            $table->integer('group_id')->unsigned()->nullable();
-            $table->foreign('group_id')->references('id')->on('groups');
+            $table->dropForeign(['reviewer_assessment_id']);
+            $table->dropColumn('reviewer_assessment_id');
         });
     }
+    
 
     /**
      * Reverse the migrations.
@@ -26,8 +28,6 @@ class AddGroupIdToThesesTable extends Migration
      */
     public function down()
     {
-        Schema::table('theses', function($table) {
-            $table->dropColumn('group_id');
-        });
+        //
     }
 }

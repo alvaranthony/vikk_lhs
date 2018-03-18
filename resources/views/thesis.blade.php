@@ -42,7 +42,7 @@
                         <p>
                             {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT']) !!}
                                 <div class="form-group">
-                                    {{Form::label('thesis_status', 'Staatus')}}
+                                    {{Form::label('thesis_status', 'Muuda staatust')}}
                                     {{Form::select('thesis_status', $statusList, $thesis->status->id)}}
                                     {{Form::submit('Muuda', ['class' => 'btn btn-primary btn-xs'])}}
                                 </div>
@@ -57,6 +57,54 @@
                             {{$thesis->reviewer->first()->first_name}}
                             {{$thesis->reviewer->first()->last_name}}
                         </p>
+                        <p>
+                            @if ($thesis->reviewer_grade != NULL)
+                                <b>Retsensendi hinne: </b>
+                                {{$thesis->reviewer_grade->grade}}
+                            @endif
+                        </p>
+                            @if ($thesis->reviewer_assessment != NULL)
+                                <p><b>Retsensendi hinnang</b></p>
+                                <p class="comment-custom">{{$thesis->reviewer_assessment->assessment}}</p>
+                            @endif
+                        <br>
+                        <br>
+                    @endif
+                    @if ($isReviewer)
+                        <p><b>{{$reviewer_grade_add_update}} retsensendi hinne: </b></p>
+                        {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT']) !!}
+                            <div class="form-group">
+                                {{Form::label('reviewer_grade', 'Hinne')}}
+                                {{Form::select('reviewer_grade', $gradesList, null, ['placeholder' => $reviewer_grade_add_update])}}
+                                {{Form::submit($reviewer_grade_add_update, ['class' => 'btn btn-primary btn-xs'])}}
+                            </div>
+                        {!! Form::close() !!}
+                        
+                        <div class="panel-body">
+                            {!! Form::open(['action' => 'ReviewerAssessmentController@store', 'method' => 'POST']) !!}
+                                <div class="form-group">
+                                    {{Form::textarea('assessment', '', ['class' => 'form-control', 'rows' => 2, 'placeholder' => 'Kuni 750 tähemärki'])}}
+                                </div>
+                                <div class="btn-toolbar">
+                                    {!! Form::hidden('thesisId', $thesis->id) !!}
+                                    {{Form::submit('Lisa retsensendi hinnang', ['class' => 'btn btn-primary btn-xs'])}}
+                                </div>
+                            {!! Form::close() !!}
+                        </div>
+                        
+                        @if (count($thesis->fileentry->where('mime', '=', 'application/pdf')) > 0)
+                            <p>
+                                <br>
+                                <br>
+                                <b>Retsenseeritava lõputöö fail: </b>
+                                <br>
+                                <a href="{{route('getentry', $thesis->fileentry->where('mime', '=', 'application/pdf')->last()->filename)}}" class="material-icons">
+                                    file_download
+                                </a>
+                                {{$thesis->fileentry->where('mime', '=', 'application/pdf')->last()->original_filename}}
+                                <br><br>
+                            </p>
+                        @endif
                     @endif
                     @if ($current_user->hasRole('Administraator'))
                         {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()']) !!}
@@ -69,19 +117,6 @@
                     @endif
                     <br>
                     <br>
-                    @if ($isReviewer)
-                        @if (count($thesis->fileentry->where('mime', '=', 'application/pdf')) > 0)
-                            <p>
-                                <b>Retsenseeritava lõputöö fail: </b>
-                                <br>
-                                <a href="{{route('getentry', $thesis->fileentry->where('mime', '=', 'application/pdf')->last()->filename)}}" class="material-icons">
-                                    file_download
-                                </a>
-                                {{$thesis->fileentry->where('mime', '=', 'application/pdf')->last()->original_filename}}
-                                <br><br>
-                            </p>
-                        @endif
-                    @endif
                     @if (count($thesis->fileentry) > 0)
                         <p>
                         <b>Lõputöö fail(id): </b>

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Response;
+use App\ReviewerGrade;
 use App\FileEntry;
 use App\Thesis;
 use App\Status;
@@ -38,7 +39,7 @@ class ThesesController extends Controller
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
         
-        //check if current user has teacher role
+        //check if current user has teacher or administrator role
         if ($user->hasRole('Õpetaja') || $user->hasRole('Administraator'))
         {
             if($request->input('thesis_status'))
@@ -247,6 +248,7 @@ class ThesesController extends Controller
             $reviewer_role_id = Role::find(8)->id;
             $hasReviewer = $thesis->user()->where('role_id', $reviewer_role_id)->exists();
             $reviewer_add_update = ($hasReviewer ? 'Uuenda' : 'Määra');
+            $reviewer_grade_add_update = ($thesis->reviewer_grade === NULL ? 'Määra' : 'Uuenda');
             $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $current_user->id, $instructor_role_id);
             $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $current_user->id, $reviewer_role_id);
             $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
@@ -257,6 +259,7 @@ class ThesesController extends Controller
                 $isInstructor ||
                 $isReviewer)
             {
+                $reviewer_grades_list = ReviewerGrade::all()->pluck('grade', 'id');
                 $statuses = DB::table('statuses')->whereIn('id', [1,2,3])->pluck('name', 'id');
                 $status_id = $thesis->status->id;
                 
@@ -266,7 +269,9 @@ class ThesesController extends Controller
                     ->with('hasReviewer', $hasReviewer)
                     ->with('isInstructor', $isInstructor)
                     ->with('isReviewer', $isReviewer)
+                    ->with('gradesList', $reviewer_grades_list)
                     ->with('reviewer_add_update', $reviewer_add_update)
+                    ->with('reviewer_grade_add_update', $reviewer_grade_add_update)
                     ->with('statusList', $statuses)
                     ->with('status_id', $status_id)
                     ->with('thesis', $thesis);
@@ -346,6 +351,7 @@ class ThesesController extends Controller
         $reviewer_role_id = Role::find(8)->id;
         $instructor_role_id = Role::find(3)->id;
         $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $user_id, $instructor_role_id);
+        $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $user_id, $reviewer_role_id);
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
         
         //check if current user has student role
@@ -384,18 +390,37 @@ class ThesesController extends Controller
             }
         }
         
-        elseif ($isInstructor)
+        elseif ($request->input('thesis_status'))
         {
-            if ($request->input('thesis_status'))
+            if ($isInstructor)
             {
                 //update thesis status
                 $thesis = Thesis::find($id);
                 $thesis->status_id = $request->input('thesis_status');
                 $thesis->save();
                 
-                return redirect('/instructor/theses')->with('success', 'Staatus uuendatud!');
+                return redirect()->back()->with('success', 'Staatus uuendatud!');
             }
             else
+            {
+                return redirect('/home');
+            }
+        }
+        
+        elseif ($request->input('reviewer_grade'))
+        {
+            if ($isReviewer)
+            {
+                $grade_add_update_text = ($thesis->reviewer_grade === NULL ? 'lisatud!' : 'uuendatud!');
+                
+                $thesis = Thesis::find($id);
+                $thesis->reviewer_grade_id = $request->input('reviewer_grade');
+                $thesis->save();
+                
+                return redirect()->back()->with('success', 'Hinne ' . $grade_add_update_text);
+                
+            }
+            else 
             {
                 return redirect('/home');
             }
@@ -423,6 +448,9 @@ class ThesesController extends Controller
                         $reviewer->pivot->save();
                     }
                 }
+                
+                $thesis->reviewer_grade_id = NULL;
+                $thesis->save();
                 
                 return redirect()->back()->with('success', 'Retsensent muudetud!');
             }

@@ -45,13 +45,15 @@
                             {{$role->name}}
                         @endforeach
                     </p>
-                    <p>
-                        {!! Form::open(['action' => ['UserController@update', $user->id], 'method' => 'PUT', 'onsubmit' => 'return confirmRole()']) !!}
-                            {{Form::label('user_role', 'Määra roll')}}
-                            {{Form::select('user_role', $rolesList, null)}}
-                            {{Form::submit('Määra', ['class' => 'btn btn-primary btn-xs'])}}
-                        {!! Form::close() !!}
-                    </p>
+                    @if (!$user->hasRole('Õpilane'))
+                        <p>
+                            {!! Form::open(['action' => ['UserController@update', $user->id], 'method' => 'PUT', 'onsubmit' => 'return confirmRole()']) !!}
+                                {{Form::label('user_role', 'Määra roll')}}
+                                {{Form::select('user_role', $rolesList, null)}}
+                                {{Form::submit('Määra', ['class' => 'btn btn-primary btn-xs'])}}
+                            {!! Form::close() !!}
+                        </p>
+                    @endif
                     <hr>
                     @if ($user->id != Auth::user()->id)
                         <div>

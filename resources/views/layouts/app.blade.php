@@ -121,7 +121,7 @@
                     @if (Auth::user()->hasRole('Administraator'))
                         <li>
                             <a href="/users">
-                                Halda kasutajad
+                                Halda kasutajaid
                             </a>
                         </li>
                         <li>
