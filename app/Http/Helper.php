@@ -84,7 +84,8 @@ class Helper{
     }
     
     //function to get all non-student users list
-    public static function getNonStudents($users_all){
+    public static function getNonStudents($users_all)
+    {
         $non_students = array();
         foreach ($users_all as $user)
         {
@@ -101,5 +102,19 @@ class Helper{
             }
         }
         return $non_students;
+    }
+    
+    //check if user has specific study group
+    public static function isMatch($matchable, $group_name)
+    {
+        $group_name_stripped = preg_replace('/[0-9]+/', '', $group_name);
+        if ($group_name_stripped === $matchable)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 }

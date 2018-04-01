@@ -5,10 +5,10 @@
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-primary">
-                <div class="panel-heading">Lõputööde andmed</div>
+                <div class="panel-heading">Kaitsmisele lubatud lõputööde andmed</div>
                 <div class="panel-body">
                     @include('messages.flash-message')
-                    {!! Form::open(['action' => ['ThesesController@index'], 'method' => 'GET']) !!}
+                    {!! Form::open(['action' => ['ThesesController@committeeTheses'], 'method' => 'GET']) !!}
                         <div class="form-group pull-right">
                             <div class="form-group">
                                 {{Form::label('name', 'Otsi teema põhjal')}}
@@ -18,24 +18,6 @@
                         </div>
                     {!! Form::close() !!}
                 </div>
-                @if (!Auth::user()->hasRole('Komisjoni liige') || !Auth::user()->hasRole('Komisjoni esimees'))
-                    <div class="panel-body">
-                    {!! Form::open(['action' => ['ThesesController@index'], 'method' => 'GET']) !!}
-                        <div class="form-group pull-left">
-                            {{Form::label('study_group', 'Filtreeri õppegrupi põhjal')}}
-                            {{Form::select('study_group', $groupsList, ['class' => 'form-control'])}}
-                            {{Form::submit('Filtreeri', ['class' => 'btn btn-default btn-xs'])}}
-                        </div>
-                    {!! Form::close() !!}
-                    {!! Form::open(['action' => ['ThesesController@index'], 'method' => 'GET']) !!}
-                        <div class="form-group pull-right">
-                            {{Form::label('thesis_status', 'Filtreeri staatuse põhjal')}}
-                            {{Form::select('thesis_status', $statusList, ['class' => 'form-control'])}}
-                            {{Form::submit('Filtreeri', ['class' => 'btn btn-default btn-xs'])}}
-                        </div>
-                    {!! Form::close() !!}
-                    </div>
-                @endif
                 <div class="panel-body">
                     @if (session('status'))
                         <div class="alert alert-success">

@@ -24,8 +24,11 @@ class UserController extends Controller
     {
         $user_id = Auth::user()->id;
         $current_user = User::find($user_id);
+        $user_roles = $current_user->role->unique();
         
-        return view('user.profile')->with('user', $current_user);
+        return view('user.profile')
+            ->with('user', $current_user)
+            ->with('userRoles', $user_roles);
     }
     
     /**
@@ -139,6 +142,32 @@ class UserController extends Controller
                 $user = User::find($id);
                 $user->role()->attach($request->input('user_role'));
                 return redirect()->back()->with('success', 'Roll lisatud!');
+            }
+            else
+            {
+                return redirect()->back();
+            }
+        }
+        elseif($request->input('exam_lang'))
+        {
+            if($current_user->hasRole('Õpilane'))
+            {
+                $current_user->exam_lang_id = $request->input('exam_lang');
+                $current_user->save();
+                return redirect()->back()->with('success', 'Eksamikeel lisatud!');
+            }
+            else
+            {
+                return redirect()->back();
+            }
+        }
+        elseif($request->input('study_group'))
+        {
+            if($current_user->hasRole('Õpilane'))
+            {
+                $current_user->group_id = $request->input('study_group');
+                $current_user->save();
+                return redirect()->back()->with('success', 'Õppegrupp lisatud!');
             }
             else
             {

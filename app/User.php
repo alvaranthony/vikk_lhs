@@ -4,10 +4,15 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use App\Thesis;
+use App\ExamLanguage;
 use App\Internship;
-use App\Role;
+use App\ExamType;
 use App\Relation;
+use App\Thesis;
+use App\Group;
+use App\Exam;
+use App\Role;
+
 
 class User extends Authenticatable
 {
@@ -45,6 +50,18 @@ class User extends Authenticatable
     
     public function role(){
         return $this->belongsToMany('App\Role', 'roles_theses_users')->withPivot('thesis_id');
+    }
+    
+    public function group(){
+        return $this->belongsTo('App\Group');
+    }
+    
+    public function exam_lang(){
+        return $this->belongsTo('App\ExamLanguage');
+    }
+    
+    public function exam_type(){
+        return $this->belongsToMany('App\ExamType', 'exam_user');
     }
     
     public function instructorTheses () {

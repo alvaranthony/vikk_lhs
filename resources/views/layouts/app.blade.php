@@ -59,7 +59,7 @@
                                         <a href="{{ route('logout') }}" style="color:white; float:right; background-color:#79181A; border-radius:5px; padding:2px; margin-left:10px;"
                                             onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                            Logi välja
+                                            Välju
                                         </a>
                                         <a href="/myprofile" class="material-icons pull-right">account_circle</a>
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
@@ -91,6 +91,11 @@
                                 Sisesta praktika andmed
                             </a>
                         </li>
+                        <li>
+                            <a href="/exams/create">
+                                Registreeri EUCIP eksamitele
+                            </a>
+                        </li>
                     @endif
                     @if (Auth::user()->hasRole('Õpetaja'))
                         <li>
@@ -101,6 +106,11 @@
                         <li>
                             <a href="/internships">
                                 Praktikate andmed
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/exams">
+                                Eksamite registreeringud
                             </a>
                         </li>
                     @endif
@@ -115,6 +125,13 @@
                         <li>
                             <a href="/reviewer/theses">
                                 Retsenseeritavad lõputööd
+                            </a>
+                        </li>
+                    @endif
+                    @if (Auth::user()->hasRole('Komisjoni liige') || Auth::user()->hasRole('Komisjoni esimees'))
+                        <li>
+                            <a href="/committee/theses">
+                                Kaitsmisele lubatud lõputööd
                             </a>
                         </li>
                     @endif

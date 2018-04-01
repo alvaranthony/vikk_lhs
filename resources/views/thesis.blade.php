@@ -25,6 +25,14 @@
                             {{ session('status') }}
                         </div>
                     @endif
+                    @if ($current_user->hasRole('Komisjoni esimees'))
+                        <div class="pull-right">
+                            {!!Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()'])!!}
+                                {{Form::label($committee_actions ? 'Kaitstud' : 'Ei ole kaitstud')}}
+                                {{Form::submit('check_circle', ['class' => $committee_actions ? 'btn btn-primary btn-xs material-icons': 'btn btn-danger btn-xs material-icons'])}}
+                            {!!Form::close()!!}
+                        </div>
+                    @endif
                     <p><b>Teema: </b>{{$thesis->name}}</p>
                     <p>
                         <b>Töö autor: </b>
@@ -80,17 +88,27 @@
                             </div>
                         {!! Form::close() !!}
                         
-                        <div class="panel-body">
-                            {!! Form::open(['action' => 'ReviewerAssessmentController@store', 'method' => 'POST']) !!}
-                                <div class="form-group">
-                                    {{Form::textarea('assessment', '', ['class' => 'form-control', 'rows' => 2, 'placeholder' => 'Kuni 750 tähemärki'])}}
-                                </div>
-                                <div class="btn-toolbar">
+                        @if ($thesis->reviewer_assessment === NULL)
+                            <div class="panel-body">
+                                {!! Form::open(['action' => 'ReviewerAssessmentController@store', 'method' => 'POST']) !!}
+                                    <div class="form-group">
+                                        {{Form::textarea('assessment', '', ['class' => 'form-control', 'rows' => 2, 'placeholder' => 'Kuni 750 tähemärki'])}}
+                                    </div>
+                                    <div class="btn-toolbar">
+                                        {!! Form::hidden('thesisId', $thesis->id) !!}
+                                        {{Form::submit('Lisa retsensendi hinnang', ['class' => 'btn btn-primary btn-xs'])}}
+                                    </div>
+                                {!! Form::close() !!}
+                            </div>
+                        @else
+                            <p>
+                                {!!Form::open(['action' => ['ReviewerAssessmentController@destroy', $thesis->reviewer_assessment_id], 'method' => 'POST', 'onsubmit' => 'return confirmReviewer()'])!!}
                                     {!! Form::hidden('thesisId', $thesis->id) !!}
-                                    {{Form::submit('Lisa retsensendi hinnang', ['class' => 'btn btn-primary btn-xs'])}}
-                                </div>
-                            {!! Form::close() !!}
-                        </div>
+                                    {{Form::hidden('_method', 'DELETE')}}
+                                    {{Form::submit('Eemalda hinnang', ['class' => 'btn btn-danger btn-xs'])}}
+                                {!!Form::close()!!}
+                            </p>
+                        @endif
                         
                         @if (count($thesis->fileentry->where('mime', '=', 'application/pdf')) > 0)
                             <p>
@@ -107,13 +125,15 @@
                         @endif
                     @endif
                     @if ($current_user->hasRole('Administraator'))
-                        {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()']) !!}
-                            <div class="form-group">
-                                {{Form::label('thesis_reviewer', $reviewer_add_update.' retsensent')}}
-                                {{Form::select('thesis_reviewer', $usersList, null, ['placeholder' => $reviewer_add_update])}}
-                                {{Form::submit($reviewer_add_update, ['class' => 'btn btn-primary btn-xs'])}}
-                            </div>
-                        {!! Form::close() !!}
+                        @if ($thesis->status_id === 3)
+                            {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()']) !!}
+                                <div class="form-group">
+                                    {{Form::label('thesis_reviewer', $reviewer_add_update.' retsensent')}}
+                                    {{Form::select('thesis_reviewer', $usersList, null, ['placeholder' => $reviewer_add_update])}}
+                                    {{Form::submit($reviewer_add_update, ['class' => 'btn btn-primary btn-xs'])}}
+                                </div>
+                            {!! Form::close() !!}
+                        @endif
                     @endif
                     <br>
                     <br>

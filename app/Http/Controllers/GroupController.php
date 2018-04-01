@@ -71,22 +71,29 @@ class GroupController extends Controller
         $user = User::find($user_id);
         $group_exists = Group::where('name', $request->input('new_group_name'))->exists();
         
-        if ($user->hasRole('Administraator') && !$group_exists)
+        if (!$group_exists)
         {
-            $this->validate($request, [
-            'new_group_name' => 'required|string|max:25',
-            ]);
-                    
-            //Create new comment for current thesis
-            $group = new Group;
-            $group->name = $request->input('new_group_name');
-            $group->save();
-            
-            return redirect('/groups')->with('success', 'Grupp lisatud!');
+            if($user->hasRole('Administraator'))
+            {
+                $this->validate($request, [
+                'new_group_name' => 'required|string|max:25',
+                ]);
+                        
+                //Create new comment for current thesis
+                $group = new Group;
+                $group->name = $request->input('new_group_name');
+                $group->save();
+                
+                return redirect('/groups')->with('success', 'Grupp lisatud!');
+            }
+            else 
+            {
+                return redirect('/groups');
+            }
         }
         else 
         {
-            return redirect('/groups');
+            return redirect('/groups')->with('error', 'Antud õppegrupp on juba olemas!');
         }
     }
 

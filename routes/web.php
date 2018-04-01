@@ -23,9 +23,13 @@ Route::get('/instructor/theses', 'ThesesController@instructorTheses');
 
 Route::get('/reviewer/theses', 'ThesesController@reviewerTheses');
 
+Route::get('/committee/theses', 'ThesesController@committeeTheses');
+
 Route::resource('theses', 'ThesesController');
 
 Route::resource('internships', 'InternshipController');
+
+Route::resource('exams', 'ExamController');
 
 Route::get('fileentry', 'HomeController@index');
 

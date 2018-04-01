@@ -19,7 +19,16 @@
                     <p><b>E-posti aadress: </b>{{$user->email}}</p>
                     <p><b>Isikukood: </b>{{$user->id_code}}</p>
                     <p><b>Telefoni number: </b>{{$user->phone_number}}</p>
+                    @if($user->group)
+                        <p><b>Õppegrupp: </b>{{$user->group->name}}</p>
+                    @endif
                     <p><b>Liitumiskuupäev: </b>{{$user->created_at}}</p>
+                    <p>
+                        <b>Aktiivsed rollid: </b>
+                        @foreach ($userRoles as $role)
+                            {{$role->name}}
+                        @endforeach
+                    </p>
                 </div>
             </div>
         </div>

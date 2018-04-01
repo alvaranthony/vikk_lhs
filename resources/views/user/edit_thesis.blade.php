@@ -31,7 +31,7 @@
                             {{Form::select('study_group_id', $groupsList, $thesis->group->id, ['class' => 'form-control'])}}
                         </div>
                         <div class="btn-toolbar">
-                            {{Form::submit('Sisesta', ['class' => 'btn btn-primary'])}}
+                            {{Form::submit('Muuda', ['class' => 'btn btn-primary'])}}
                         </div>
                     {!! Form::close() !!}
                 </div>

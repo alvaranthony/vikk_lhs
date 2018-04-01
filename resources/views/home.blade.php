@@ -3,9 +3,9 @@
 @section('content')
 
 <script>
-    function confirmDelete()
+    function confirmDelete(message)
     {
-    var x = confirm("Kas olete kindel, et soovite andmed kustutada?");
+    var x = confirm("Kas olete kindel? " + message);
     if (x)
         return true;
     else
@@ -67,7 +67,7 @@
                                         <th><a href="/theses/{{$thesis->id}}" class="material-icons">open_in_new</a></th>
                                         <th><a href="/theses/{{$thesis->id}}/edit" class="material-icons">mode_edit</a></th>
                                         <th>
-                                            {!!Form::open(['action' => ['ThesesController@destroy', $thesis->id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmDelete()'])!!}
+                                            {!!Form::open(['action' => ['ThesesController@destroy', $thesis->id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmDelete("Soovite lõputöö andmed kustutada.")'])!!}
                                                 {{Form::hidden('_method', 'DELETE')}}
                                                 {{Form::submit('delete_forever', ['class' => 'material-icons btn btn-danger btn-xs'])}}
                                             {!!Form::close()!!}
@@ -90,7 +90,46 @@
                                 @endif
                             @endforeach
                         @else
-                            <h4 style="color:red;">Lõputöö andmed puuduvad!</h4>
+                            <div class="alert alert-info alert-block">
+                                <strong>!! Andmed lõputöö kohta puuduvad !!</strong>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Minu eksamite registreeringud</div>
+                    <div class="panel-body">
+                        @if (session('status'))
+                            <div class="alert alert-success">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+                        @if (count($exams) > 0)
+                            <p><b>Eksami keel: {{$user->exam_lang->language}}</b></p>
+                            <p><b>Õppegrupp: {{$user->group->name}}</b></p>
+                            <table class="table table-hover table-dark" style="margin-top: 20px;">
+                                <thead>
+                                    <th></th>
+                                    <th>Eksami tüüp</th>
+                                    <th></th>
+                                </thead>
+                                @foreach ($exams as $exam)
+                                    <tbody>
+                                        <th>{{$loop->iteration}}</th>
+                                        <th>{{$exam->type}}</th>
+                                        <th>
+                                            {!!Form::open(['action' => ['ExamController@destroy', $exam->pivot->exam_type_id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmDelete("Soovite eksami registreeringu tühistada.")'])!!}
+                                                {{Form::hidden('_method', 'DELETE')}}
+                                                {{Form::submit('Tühista registreering', ['class' => 'btn btn-danger btn-xs'])}}
+                                            {!!Form::close()!!}
+                                        </th>
+                                    </tbody>
+                                @endforeach
+                            </table>
+                        @else
+                            <div class="alert alert-info alert-block">
+                                <strong>!! Andmed eksamite registreeringute kohta puuduvad !!</strong>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -122,7 +161,7 @@
                                         <th>{{$intern->duration}}</th>
                                         <th><a href="/internships/{{$intern->id}}/edit" class="material-icons">mode_edit</a></th>
                                         <th>
-                                            {!!Form::open(['action' => ['InternshipController@destroy', $intern->id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmDelete()'])!!}
+                                            {!!Form::open(['action' => ['InternshipController@destroy', $intern->id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmDelete("Soovite praktika andmed kustutada.")'])!!}
                                                 {{Form::hidden('_method', 'DELETE')}}
                                                 {{Form::submit('delete_forever', ['class' => 'material-icons btn btn-danger btn-xs'])}}
                                             {!!Form::close()!!}
@@ -131,7 +170,9 @@
                                 @endforeach
                             </table>
                         @else
-                            <h4 style="color:red;">Praktika andmeid pole sisestatud</4>
+                            <div class="alert alert-info alert-block">
+                                <strong>!! Andmed erialaste praktikate kohta puuduvad !!</strong>
+                            </div>
                         @endif
                     </div>
                     <br>

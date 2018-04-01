@@ -109,8 +109,26 @@ class ReviewerAssessmentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        $thesis = Thesis::find($request->input('thesisId'));
+        $reviewer_role_id = Role::find(8)->id;
+        $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $user_id, $reviewer_role_id);
+        
+        if ($isReviewer)
+        {
+            $thesis->reviewer_assessment_id = NULL;
+            $thesis->save();
+            $reviewer_assessment = ReviewerAssessment::find($id);
+            $reviewer_assessment->delete();
+            
+            return redirect()->back()->with('warning', 'Hinnang eemaldatud!');
+        }
+        else
+        {
+            return redirect()->back()->with('error', 'Teil puudub ligipääs!');
+        }
     }
 }

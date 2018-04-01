@@ -34,6 +34,7 @@ class HomeController extends Controller
         $user = User::find($user_id);
         $theses = $user->thesis;
         $intership = $user->internship;
+        $exams = $user->exam_type;
         $reviewer_role_id = Role::find(8)->id;
         
         #dd(!(count(Auth::user()->role) < 2 && Auth::user()->hasRole('Vaikimisi')))
@@ -42,6 +43,7 @@ class HomeController extends Controller
             ->with('internship', $intership)
             ->with('reviewer_role_id', $reviewer_role_id)
             ->with('theses', $theses)
+            ->with('exams', $exams)
             ->with('user', $user);
     }
 }

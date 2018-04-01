@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Http\Response;
+use App\ReviewerAssessment;
 use App\ReviewerGrade;
 use App\FileEntry;
 use App\Thesis;
@@ -69,10 +70,6 @@ class ThesesController extends Controller
                 ->with('groupsList', $groups_all)
                 ->with('theses_all', $theses_all);
         }
-        else 
-        {
-            return redirect('/home');
-        }
     }
     
     public function instructorTheses()
@@ -107,6 +104,35 @@ class ThesesController extends Controller
         else
         {
             return redirect('home');
+        }
+    }
+    
+    public function committeeTheses(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        
+        if ($user->hasRole('Komisjoni esimees') || $user->hasRole('Komisjoni liige'))
+        {
+            $reviewer_role_id = Role::find(8)->id;
+            
+            if ($request->input('name'))
+            {
+                $theses_all = Thesis::whereIn('status_id', [3, 4])
+                    ->where('name', 'like', '%'.$request->input('name').'%')->get();
+            }
+            else
+            {
+                $theses_all = Thesis::all()->whereIn('status_id', [3, 4]);
+            }
+            
+            return view('committee_theses')
+                ->with('reviewer_role_id', $reviewer_role_id)
+                ->with('theses_all', $theses_all);
+        }
+        else 
+        {
+            return redirect('/home');
         }
     }
 
@@ -185,6 +211,10 @@ class ThesesController extends Controller
                 $thesis->defense_date = $request->input('defense_date');
                 $thesis->save();
                 
+                //attach study_group to the given user
+                $user->group_id = $request->input('study_group');
+                $user->save();
+                
                 //attach user with given thesis
                 $user->thesis()->attach($thesis->id, array('role_id' => $student_role_id));
                 
@@ -252,12 +282,11 @@ class ThesesController extends Controller
             $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $current_user->id, $instructor_role_id);
             $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $current_user->id, $reviewer_role_id);
             $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
+            $committee_actions = $thesis->status->name != 'Kaitstud';
             
-            if ($thesis_user_id === $current_user->id ||
-                $current_user->hasRole('Õpetaja') ||
-                $current_user->hasRole('Administraator') ||
-                $isInstructor ||
-                $isReviewer)
+            if ($thesis_user_id === $current_user->id || $current_user->hasRole('Õpetaja') ||
+                $current_user->hasRole('Administraator') || $current_user->hasRole('Komisjoni esimees') ||
+                $current_user->hasRole('Komisjoni liige') || $isInstructor || $isReviewer)
             {
                 $reviewer_grades_list = ReviewerGrade::all()->pluck('grade', 'id');
                 $statuses = DB::table('statuses')->whereIn('id', [1,2,3])->pluck('name', 'id');
@@ -270,6 +299,7 @@ class ThesesController extends Controller
                     ->with('isInstructor', $isInstructor)
                     ->with('isReviewer', $isReviewer)
                     ->with('gradesList', $reviewer_grades_list)
+                    ->with('committee_actions', $committee_actions)
                     ->with('reviewer_add_update', $reviewer_add_update)
                     ->with('reviewer_grade_add_update', $reviewer_grade_add_update)
                     ->with('statusList', $statuses)
@@ -372,9 +402,11 @@ class ThesesController extends Controller
                 $thesis->name = $request->input('name');
                 $thesis->defense_date = $request->input('defense_date');
                 $thesis->group_id = $request->input('study_group_id');
-                //update thesis status
-                #$thesis->status_id = $request->input('thesis_status');
                 $thesis->save();
+                
+                //update user's study group
+                $user->group_id = $request->input('study_group_id');
+                $user->save();
                 
                 //update thesis instructor 
                 foreach ($thesis->role as $instructor)
@@ -426,37 +458,82 @@ class ThesesController extends Controller
             }
         }
         
-        elseif ($user->hasRole('Administraator'))
+        elseif ($request->input('thesis_reviewer'))
         {
-            $hasReviewer = $thesis->user()->where('role_id', $reviewer_role_id)->exists();
+            if ($user->hasRole('Administraator'))
+            {
+                $hasReviewer = $thesis->user()->where('role_id', $reviewer_role_id)->exists();
             
-            //check if thesis already has reviewer and if thesis has status "Kaitsmisele lubatud"
-            if ($hasReviewer == false && $thesis->status_id == 3)
-            {
-                //attach user with given thesis as reviewer
-                $thesis->user()->attach($request->input('thesis_reviewer'), array('role_id' => $reviewer_role_id));
-                return redirect()->back()->with('success', 'Retsensent lisatud!');
-            }
-            elseif ($hasReviewer == true && $thesis->status_id == 3)
-            {
-                //update thesis reviewer 
-                foreach ($thesis->role as $reviewer)
+                //check if thesis already has reviewer and if thesis has status "Kaitsmisele lubatud"
+                if ($hasReviewer == false && $thesis->status_id == 3)
                 {
-                if ($reviewer->id == 8)
+                    //attach user with given thesis as reviewer
+                    $thesis->user()->attach($request->input('thesis_reviewer'), array('role_id' => $reviewer_role_id));
+                    return redirect()->back()->with('success', 'Retsensent lisatud!');
+                }
+                elseif ($hasReviewer == true && $thesis->status_id == 3)
+                {
+                    //update thesis reviewer 
+                    foreach ($thesis->role as $reviewer)
                     {
-                        $reviewer->pivot->user_id = $request->input('thesis_reviewer');
-                        $reviewer->pivot->save();
+                    if ($reviewer->id == 8)
+                        {
+                            $reviewer->pivot->user_id = $request->input('thesis_reviewer');
+                            $reviewer->pivot->save();
+                        }
                     }
+                    
+                    //remove previous reviewer's grade and comment
+                    $previous_assessment_id = $thesis->reviewer_assessment_id;
+                    $thesis->reviewer_grade_id = NULL;
+                    $thesis->reviewer_assessment_id = NULL;
+                    $thesis->save();
+                    
+                    if ($previous_assessment_id != NULL)
+                    {
+                        $reviewer_assessment = ReviewerAssessment::find($previous_assessment_id);
+                        $reviewer_assessment->delete();
+                    }
+                    
+                    return redirect()->back()->with('success', 'Retsensent muudetud!');
+                }
+                else
+                {
+                    return redirect()->back()->with('error', 'Antud tööl on ebapiisav staatus!');
+                }
+            }
+            else 
+            {
+                return redirect('/home');
+            }
+        }
+        
+        //committee actions
+        elseif ($request)
+        {
+            if ($user->hasRole('Komisjoni esimees'))
+            {
+                $thesis = Thesis::find($id);
+                $committee_actions = $thesis->status->name != 'Kaitstud';
+                
+                if ($committee_actions)
+                {
+                    //update thesis status to "Kaitstud"
+                    $thesis->status_id = 4;
+                    $thesis->save();
+                }
+                else 
+                {
+                    //else change back to "Kaitsmisele lubatud"
+                    $thesis->status_id = 3;
+                    $thesis->save();
                 }
                 
-                $thesis->reviewer_grade_id = NULL;
-                $thesis->save();
-                
-                return redirect()->back()->with('success', 'Retsensent muudetud!');
+                return redirect()->back()->with('success', 'Staatus uuendatud!');
             }
             else
             {
-                return redirect()->back()->with('error', 'Antud tööl on kas retsensent olemas või ebapiisav staatus!');
+                return redirect('/home')->with('error', 'Midagi läks valesti! Teil võib puududa vastav ligipääs.');
             }
         }
         
