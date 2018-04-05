@@ -34,6 +34,14 @@ class InternshipController extends Controller
             {
                 $internships_all = Internship::where('company_name', 'like', '%'.$request->input('company_name').'%')->get();
             }
+            elseif($request->input('last_name'))
+            {
+                $request_last_name = $request->input('last_name');
+                $internships_all = Internship::whereHas('user', function($q) use ($request_last_name)
+                {
+                    $q->where('last_name', 'like', $request_last_name);
+                })->get();
+            }
             else
             {
                 $internships_all = Internship::all();

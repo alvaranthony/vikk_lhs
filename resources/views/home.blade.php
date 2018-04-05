@@ -91,7 +91,7 @@
                             @endforeach
                         @else
                             <div class="alert alert-info alert-block">
-                                <strong>!! Andmed lõputöö kohta puuduvad !!</strong>
+                                <strong>Andmed lõputöö kohta puuduvad</strong>
                             </div>
                         @endif
                     </div>
@@ -128,7 +128,7 @@
                             </table>
                         @else
                             <div class="alert alert-info alert-block">
-                                <strong>!! Andmed eksamite registreeringute kohta puuduvad !!</strong>
+                                <strong>Andmed eksamite registreeringute kohta puuduvad</strong>
                             </div>
                         @endif
                     </div>
@@ -171,7 +171,7 @@
                             </table>
                         @else
                             <div class="alert alert-info alert-block">
-                                <strong>!! Andmed erialaste praktikate kohta puuduvad !!</strong>
+                                <strong>Andmed erialaste praktikate kohta puuduvad</strong>
                             </div>
                         @endif
                     </div>
@@ -189,18 +189,16 @@
                         @endif
                         @if (!($user->hasRole('Juhendaja')))
                             <div class="alert alert-info alert-block">
-                                <strong>!! Näete automaatselt juhendatavaid lõputöid, kui Teid lõputöö juhendajaks määratakse !!</strong>
+                                <strong>Näete automaatselt juhendatavaid lõputöid, kui Teid lõputöö juhendajaks määratakse</strong>
                             </div>
                         @endif
                         @if (!($user->hasRole('Retsensent')))
                             <div class="alert alert-info alert-block">
-                                <strong>!! Näete automaatselt retsenseeritavaid lõputöid, kui Teid lõputöö retsensendiks määratakse !!</strong>
+                                <strong>Näete automaatselt retsenseeritavaid lõputöid, kui Teid lõputöö retsensendiks määratakse</strong>
                             </div>
                         @endif
                         <div class="alert alert-danger alert-block">
-                            <strong>
-                                !! Komisjoni liikme, õpetaja, administraatori rolli on võimalik taotleda e-posti aadressi kaudu - admin@admin.com !!
-                            </strong>
+                            <strong>Komisjoni liikme, õpetaja, administraatori rolli on võimalik taotleda e-posti aadressi kaudu - admin@admin.com</strong>
                         </div>
                         <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
                     </div>

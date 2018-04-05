@@ -6,13 +6,24 @@
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-primary">
                 <div class="panel-heading">Praktikate andmed</div>
+                @include('messages.flash-message')
                 <div class="panel-body">
-                    @include('messages.flash-message')
                     {!! Form::open(['action' => ['InternshipController@index'], 'method' => 'GET']) !!}
                         <div class="form-group pull-right">
                             <div class="form-group">
                                 {{Form::label('company_name', 'Otsi firma järgi')}}
                                 {{Form::text('company_name', '', ['class' => 'form-control'])}}
+                            </div>
+                            {{Form::submit('Otsi', ['class' => 'btn btn-default btn-xs'])}}
+                        </div>
+                    {!! Form::close() !!}
+                </div>
+                <div class="panel-body">
+                    {!! Form::open(['action' => ['InternshipController@index'], 'method' => 'GET']) !!}
+                        <div class="form-group pull-right">
+                            <div class="form-group">
+                                {{Form::label('last_name', 'Otsi õpilase perenime järgi')}}
+                                {{Form::text('last_name', '', ['class' => 'form-control'])}}
                             </div>
                             {{Form::submit('Otsi', ['class' => 'btn btn-default btn-xs'])}}
                         </div>
@@ -30,6 +41,7 @@
                             <thead>
                                 <th></th>
                                 <th>Õpilane</th>
+                                <th>Õppegrupp</th>
                                 <th>Ettevõte</th>
                                 <th>Alustamise kuupäev</th>
                                 <th>Lõpetamise kuupäev</th>
@@ -41,6 +53,7 @@
                                 <th>
                                     {{$intern->user->first_name}} {{$intern->user->last_name}}
                                 </th>
+                                <th>{{$intern->user->group->name}}</th>
                                 <th>{{$intern->company_name}}</th>
                                 <th>{{$intern->start_date}}</th>
                                 <th>{{$intern->end_date}}</th>

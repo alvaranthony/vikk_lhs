@@ -47,7 +47,7 @@
                         @endif
                     @else
                         <div class="alert alert-info alert-block">
-                            <strong>!! Antud eksamile ei ole ühtegi õpilast registreeritud !!</strong>
+                            <strong>Antud eksamile ei ole ühtegi õpilast registreeritud</strong>
                         </div>
                     @endif
                 </div>

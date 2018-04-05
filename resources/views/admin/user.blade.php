@@ -3,17 +3,9 @@
 @section('content')
 
 <script>
-    function confirmDelete()
+    function confirmMessage(message)
     {
-    var x = confirm("Kas olete kindel, et soovite antud kasutaja kustutada? Seda toimingut ei saa tagasi võtta!");
-    if (x)
-        return true;
-    else
-        return false;
-    }
-    function confirmRole()
-    {
-    var x = confirm("Kas olete kindel, et soovite antud kasutajale vastava rolli lisada?");
+    var x = confirm("Kas olete kindel? " + message);
     if (x)
         return true;
     else
@@ -47,7 +39,7 @@
                     </p>
                     @if (!$user->hasRole('Õpilane'))
                         <p>
-                            {!! Form::open(['action' => ['UserController@update', $user->id], 'method' => 'PUT', 'onsubmit' => 'return confirmRole()']) !!}
+                            {!! Form::open(['action' => ['UserController@update', $user->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite kasutajale antud rolli määrata.")']) !!}
                                 {{Form::label('user_role', 'Määra roll')}}
                                 {{Form::select('user_role', $rolesList, null)}}
                                 {{Form::submit('Määra', ['class' => 'btn btn-primary btn-xs'])}}
@@ -57,7 +49,7 @@
                     <hr>
                     @if ($user->id != Auth::user()->id)
                         <div>
-                            {!!Form::open(['action' => ['UserController@destroy', $user->id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmDelete()'])!!}
+                            {!!Form::open(['action' => ['UserController@destroy', $user->id], 'method' => 'POST', 'class' => 'pull-right', 'onsubmit' => 'return confirmMessage("Soovite antud kasutajat eemaldada. Seda toimingut ei saa tagasi võtta!")'])!!}
                                 {{Form::hidden('_method', 'DELETE')}}
                                 {{Form::submit('Kustuta kasutaja', ['class' => 'btn btn-danger btn-md'])}}
                             {!!Form::close()!!}

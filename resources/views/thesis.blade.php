@@ -3,9 +3,9 @@
 @section('content')
 
 <script>
-    function confirmReviewer()
+    function confirmMessage(message)
     {
-    var x = confirm("Kas olete kindel?");
+    var x = confirm("Kas olete kindel? " + message);
     if (x)
         return true;
     else
@@ -27,8 +27,8 @@
                     @endif
                     @if ($current_user->hasRole('Komisjoni esimees'))
                         <div class="pull-right">
-                            {!!Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()'])!!}
-                                {{Form::label($committee_actions ? 'Kaitstud' : 'Ei ole kaitstud')}}
+                            {!!Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite töö staatust muuta.")'])!!}
+                                {{Form::label($committee_actions ? 'Määra töö kaitstuks' : 'Eemalda töö kaitstud tööde hulgast')}}
                                 {{Form::submit('check_circle', ['class' => $committee_actions ? 'btn btn-primary btn-xs material-icons': 'btn btn-danger btn-xs material-icons'])}}
                             {!!Form::close()!!}
                         </div>
@@ -48,7 +48,7 @@
                     <p><b>Õppegrupp: </b>{{$thesis->group->name}}</p>
                     @if ($isInstructor)
                         <p>
-                            {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT']) !!}
+                            {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite töö staatust muuta.")']) !!}
                                 <div class="form-group">
                                     {{Form::label('thesis_status', 'Muuda staatust')}}
                                     {{Form::select('thesis_status', $statusList, $thesis->status->id)}}
@@ -80,7 +80,7 @@
                     @endif
                     @if ($isReviewer)
                         <p><b>{{$reviewer_grade_add_update}} retsensendi hinne: </b></p>
-                        {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT']) !!}
+                        {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite hinnet lisada/uuendada.")']) !!}
                             <div class="form-group">
                                 {{Form::label('reviewer_grade', 'Hinne')}}
                                 {{Form::select('reviewer_grade', $gradesList, null, ['placeholder' => $reviewer_grade_add_update])}}
@@ -102,7 +102,7 @@
                             </div>
                         @else
                             <p>
-                                {!!Form::open(['action' => ['ReviewerAssessmentController@destroy', $thesis->reviewer_assessment_id], 'method' => 'POST', 'onsubmit' => 'return confirmReviewer()'])!!}
+                                {!!Form::open(['action' => ['ReviewerAssessmentController@destroy', $thesis->reviewer_assessment_id], 'method' => 'POST', 'onsubmit' => 'return confirmMessage("Soovite hinnangu eemaldada.")'])!!}
                                     {!! Form::hidden('thesisId', $thesis->id) !!}
                                     {{Form::hidden('_method', 'DELETE')}}
                                     {{Form::submit('Eemalda hinnang', ['class' => 'btn btn-danger btn-xs'])}}
@@ -126,7 +126,7 @@
                     @endif
                     @if ($current_user->hasRole('Administraator'))
                         @if ($thesis->status_id === 3)
-                            {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmReviewer()']) !!}
+                            {!! Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite retsensenti lisada/muuta.")']) !!}
                                 <div class="form-group">
                                     {{Form::label('thesis_reviewer', $reviewer_add_update.' retsensent')}}
                                     {{Form::select('thesis_reviewer', $usersList, null, ['placeholder' => $reviewer_add_update])}}

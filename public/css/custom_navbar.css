@@ -16,3 +16,18 @@
     margin-right: auto;
     margin-top: -48px;
 }
+
+/*
+.navbar-custom-secondary ul li:hover {
+    background-color: #3097d1;
+    border-radius: 5px;
+}
+
+.navbar-custom-secondary ul li a:hover {
+    color: #FFFFFF !important;
+}
+*/
+
+/*
+class="{{ Request::path() == 'internships/create' ? 'active' : '' }}"
+*/

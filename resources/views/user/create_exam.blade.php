@@ -14,12 +14,12 @@
                         </div>
                     @endif
                     <div class="alert alert-warning alert-block">
-                        <strong>!! Eksamitele saavad registreeruda ainult IT-tugiisikud, Noorem tarkvaraarendajad ning IT-süsteemide spetsialistid !!</strong>
+                        <strong>Eksamitele saavad registreeruda ainult IT-tugiisikud, Noorem tarkvaraarendajad ning IT-süsteemide spetsialistid</strong>
                     </div>
                     @if ($user->exam_lang === NULL)
                         {!! Form::open(['action' => ['UserController@update', $user->id], 'method' => 'PUT']) !!}
                             <div class="alert alert-info alert-block">
-                                <strong>!! Eksamitele registreerumiseks on vajalik esmalt eksami keel määrata !!</strong>
+                                <strong>Eksamitele registreerumiseks on vajalik esmalt eksami keel määrata</strong>
                             </div>
                             <div class="form-group">
                                 {{Form::label('exam_lang', 'Vali eksamikeel')}}
@@ -34,7 +34,7 @@
                     @if ($user->group === NULL)
                         {!! Form::open(['action' => ['UserController@update', $user->id], 'method' => 'PUT']) !!}
                             <div class="alert alert-info alert-block">
-                                <strong>!! Eksamitele registreerumiseks on vajalik esmalt õppegrupp määrata !!</strong>
+                                <strong>Eksamitele registreerumiseks on vajalik esmalt õppegrupp määrata</strong>
                             </div>
                             <div class="form-group">
                                 {{Form::label('study_group', 'Õppegrupp')}}
@@ -57,8 +57,8 @@
                                 </div>
                             {!! Form::close() !!}
                         @else 
-                            <div class="alert alert-warning alert-block">
-                                <strong>!! Teie õppegrupp ei saa eksamitele registreeruda !!</strong>
+                            <div class="alert alert-danger alert-block">
+                                <strong>Teie õppegrupp ei saa eksamitele registreeruda</strong>
                             </div>
                         @endif
                     @endif
