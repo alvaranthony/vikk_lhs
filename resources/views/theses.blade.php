@@ -60,16 +60,24 @@
                             <tbody>
                                 <th>{{$loop->iteration}}</th>
                                 <th>
-                                    {{$thesis->author->first()->first_name}}
-                                    {{$thesis->author->first()->last_name}}
+                                    @if(!$thesis->author->isEmpty())
+                                        {{$thesis->author->first()->first_name}}
+                                        {{$thesis->author->first()->last_name}}
+                                    @else
+                                        Puudub!
+                                    @endif
                                 </th>
                                 <th>{{$thesis->name}}</th>
                                 <th>{{$thesis->defense_date}}</th>
                                 <th>{{$thesis->status->name}}</th>
                                 <th>{{$thesis->group->name}}</th>
                                 <th>
-                                    {{$thesis->instructor->first()->first_name}}
-                                    {{$thesis->instructor->first()->last_name}}
+                                    @if(!$thesis->instructor->isEmpty())
+                                        {{$thesis->instructor->first()->first_name}}
+                                        {{$thesis->instructor->first()->last_name}}
+                                    @else
+                                        Puudub!
+                                    @endif
                                 </th>
                                 <th>
                                     @if ($thesis->user()->where('role_id', $reviewer_role_id)->exists())

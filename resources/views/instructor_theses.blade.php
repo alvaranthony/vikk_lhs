@@ -29,8 +29,12 @@
                             <tbody>
                                 <th>{{$loop->iteration}}</th>
                                 <th>
-                                    {{$thesis->author->first()->first_name}}
-                                    {{$thesis->author->first()->last_name}}
+                                    @if(!$thesis->author->isEmpty())
+                                        {{$thesis->author->first()->first_name}}
+                                        {{$thesis->author->first()->last_name}}
+                                    @else
+                                        Puudub!
+                                    @endif
                                 </th>
                                 <th>
                                     {{$thesis->name}}

@@ -50,8 +50,12 @@
                                         </th>
                                         <th>{{$thesis->defense_date}}</th>
                                         <th>
-                                            {{$thesis->instructor->first()->first_name}}
-                                            {{$thesis->instructor->first()->last_name}}
+                                            @if(!$thesis->instructor->isEmpty())
+                                                {{$thesis->instructor->first()->first_name}}
+                                                {{$thesis->instructor->first()->last_name}}
+                                            @else
+                                                Puudub!
+                                            @endif
                                         </th>
                                         <th>
                                             @if ($thesis->user()->where('role_id', $reviewer_role_id)->exists())
@@ -177,6 +181,19 @@
                     </div>
                     <br>
                     <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
+                </div>
+            @elseif($user->hasRole('Administraator'))
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Esileht</div>
+                    <div class="panel-body">
+                        @if (session('status'))
+                            <div class="alert alert-success">
+                                {{ session('status') }}
+                            </div>
+                        @endif
+                        Olete administraatori rollis
+                        <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
+                    </div>
                 </div>
             @else($user->hasRole('Vaikimisi'))
                  <div class="panel panel-primary">

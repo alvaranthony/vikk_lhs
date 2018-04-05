@@ -190,12 +190,27 @@ class UserController extends Controller
     {
         $user_id = Auth::user()->id;
         $current_user = User::find($user_id);
-        
+        $student_role_id = Role::find(1)->id;
+
         //check if current user has administrator role
         if ($current_user->hasRole('Administraator') && $user_id != $id)
         {
             $user = User::find($id);   
+
+            $hasThesis = $user->thesis()->where('role_id', $student_role_id)->exists();
+            if($hasThesis)
+            {
+                foreach($user->thesis as $user_thesis)
+                {
+                    if($user_thesis->pivot->role_id === $student_role_id)
+                    {
+                        $user_thesis->delete();
+                    }
+                }
+            }
+
             $user->delete();
+
             return redirect('/users')->with('warning', 'Kasutaja kustutatud!');
         }
         else

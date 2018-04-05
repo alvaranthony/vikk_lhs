@@ -34,17 +34,21 @@
                         </div>
                     @endif
                     <p><b>Teema: </b>{{$thesis->name}}</p>
-                    <p>
-                        <b>Töö autor: </b>
-                        {{$thesis->author->first()->first_name}}
-                        {{$thesis->author->first()->last_name}}
-                    </p>
+                    @if(!$thesis->author->isEmpty())
+                        <p>
+                            <b>Töö autor: </b>
+                            {{$thesis->author->first()->first_name}}
+                            {{$thesis->author->first()->last_name}}
+                        </p>
+                    @endif
                     <p><b>Kaitsmise kuupäev: </b>{{$thesis->defense_date}}</p>
-                    <p>
-                        <b>Juhendaja: </b>
-                        {{$thesis->instructor->first()->first_name}}
-                        {{$thesis->instructor->first()->last_name}}
-                    </p>
+                    @if(!$thesis->instructor->isEmpty())
+                        <p>
+                            <b>Juhendaja: </b>
+                            {{$thesis->instructor->first()->first_name}}
+                            {{$thesis->instructor->first()->last_name}}
+                        </p>
+                    @endif
                     <p><b>Õppegrupp: </b>{{$thesis->group->name}}</p>
                     @if ($isInstructor)
                         <p>

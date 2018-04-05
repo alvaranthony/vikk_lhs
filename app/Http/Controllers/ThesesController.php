@@ -348,13 +348,17 @@ class ThesesController extends Controller
                 {
                     if ($instructor->id == 3)
                     {
-                        $insructor_id = $instructor->pivot->user_id;
+                        $instructor_id = $instructor->pivot->user_id;
+                    }
+                    else
+                    {
+                        $instructor_id = NULL;
                     }
                 }
                 
                 return view ('user.edit_thesis')
                     ->with('thesis', $thesis)
-                    ->with('instructor_id', $insructor_id)
+                    ->with('instructor_id', $instructor_id)
                     ->with('groupsList', $groups_all)
                     ->with('usersList', $non_students);
             }
@@ -383,6 +387,7 @@ class ThesesController extends Controller
         $isInstructor = Helper::userIsInstructorOrReviewer($thesis, $user_id, $instructor_role_id);
         $isReviewer = Helper::userIsInstructorOrReviewer($thesis, $user_id, $reviewer_role_id);
         $thesis_user_id = Helper::userOwnsThesis($thesis, $student_role_id);
+        $hasInstructor = $thesis->user()->where('role_id', $instructor_role_id)->exists();
         
         //check if current user has student role
         if ($user->hasRole('Õpilane'))
@@ -403,19 +408,27 @@ class ThesesController extends Controller
                 $thesis->defense_date = $request->input('defense_date');
                 $thesis->group_id = $request->input('study_group_id');
                 $thesis->save();
-                
+
                 //update user's study group
                 $user->group_id = $request->input('study_group_id');
                 $user->save();
                 
                 //update thesis instructor 
-                foreach ($thesis->role as $instructor)
+
+                if ($hasInstructor)
                 {
-                if ($instructor->id == 3)
+                    foreach ($thesis->role as $instructor)
                     {
-                        $instructor->pivot->user_id = $request->input('thesis_instructor');
-                        $instructor->pivot->save();
+                        if ($instructor->id == 3)
+                        {
+                            $instructor->pivot->user_id = $request->input('thesis_instructor');
+                            $instructor->pivot->save();
+                        }
                     }
+                }
+                else
+                {
+                    $thesis->user()->attach($request->input('thesis_instructor'), array('role_id' => $instructor_role_id));
                 }
                 
                 return redirect('/home')->with('success', 'Lõputöö andmed muudetud!');
