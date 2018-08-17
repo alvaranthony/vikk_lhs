@@ -22,7 +22,6 @@
                                 <th>Kaitsmise kuupäev</th>
                                 <th>Staatus</th>
                                 <th>Õppegrupp</th>
-                                <th>Lõputöö fail</th>
                                 <th></th>
                             </thead>
                             @foreach($theses as $thesis)
@@ -45,22 +44,6 @@
                                 <th>{{$thesis->defense_date}}</th>
                                 <th>{{$thesis->status->name}}</th>
                                 <th>{{$thesis->group->name}}</th>
-                                <th>
-                                    @if (count($thesis->fileentry) > 0)
-                                        @if (count($thesis->fileentry->where('mime', '=', 'application/pdf')) > 0)
-                                            <p>
-                                                <a href="{{route('getentry', $thesis->fileentry->where('mime', '=', 'application/pdf')->last()->filename)}}" class="material-icons pull-right">
-                                                    file_download
-                                                </a>
-                                                {{$thesis->fileentry->where('mime', '=', 'application/pdf')->last()->original_filename}}
-                                            </p>
-                                        @else
-                                            <p>Pole lisatud!</p>
-                                        @endif
-                                    @else
-                                        Pole lisatud!
-                                    @endif
-                                </th>
                                 <th><a href="/theses/{{$thesis->id}}" class="material-icons">open_in_new</a></th>
                             </tbody>
                             @endforeach

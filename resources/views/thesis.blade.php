@@ -25,14 +25,6 @@
                             {{ session('status') }}
                         </div>
                     @endif
-                    @if ($current_user->hasRole('Komisjoni esimees'))
-                        <div class="pull-right">
-                            {!!Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite töö staatust muuta.")'])!!}
-                                {{Form::label($committee_actions ? 'Määra töö kaitstuks' : 'Eemalda töö kaitstud tööde hulgast')}}
-                                {{Form::submit('check_circle', ['class' => $committee_actions ? 'btn btn-primary btn-xs material-icons': 'btn btn-danger btn-xs material-icons'])}}
-                            {!!Form::close()!!}
-                        </div>
-                    @endif
                     <p><b>Teema: </b>{{$thesis->name}}</p>
                     @if(!$thesis->author->isEmpty())
                         <p>
@@ -81,6 +73,14 @@
                             @endif
                         <br>
                         <br>
+                    @endif
+                    @if ($current_user->hasRole('Komisjoni esimees'))
+                        <div class="pull-right">
+                            {!!Form::open(['action' => ['ThesesController@update', $thesis->id], 'method' => 'PUT', 'onsubmit' => 'return confirmMessage("Soovite töö staatust muuta.")'])!!}
+                                {{Form::label($committee_actions ? 'Määra töö kaitstuks' : 'Eemalda töö kaitstud tööde hulgast')}}
+                                {{Form::submit('check_circle', ['class' => $committee_actions ? 'btn btn-primary btn-xs material-icons': 'btn btn-danger btn-xs material-icons'])}}
+                            {!!Form::close()!!}
+                        </div>
                     @endif
                     @if ($isReviewer)
                         <p><b>{{$reviewer_grade_add_update}} retsensendi hinne: </b></p>

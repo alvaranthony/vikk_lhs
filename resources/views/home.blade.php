@@ -191,7 +191,7 @@
                                 {{ session('status') }}
                             </div>
                         @endif
-                        Olete administraatori rollis
+                        <p style="text-align: center;"><b>Olete administraatorina sisse logitud!</b></p>
                         <p style="text-align: center;"><b><u>Küsimuste korral võtta ühendust e-posti aadressil info@vikk-lhs.com</u></b></p>
                     </div>
                 </div>
